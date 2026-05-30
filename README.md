@@ -1,5 +1,6 @@
-# Exam #N: "Exam Title"
-## Student: s123456 LASTNAME FIRSTNAME 
+# Exam #1: "Last Race"
+
+## Student: s358543 TENORE MIRKO
 
 ## React Client Application Routes
 
@@ -22,8 +23,12 @@
 
 ## Database Tables
 
-- Table `users` - contains xx yy zz
-- Table `something` - contains ww qq ss
+- Table `users` - contains id, username, hashed_password, salt
+- Table `stations` - contains id, name
+- Table `lines` - contains id, name, color
+- Table `line_stops` - contains id, line_id, station_id, stop_number
+- Table `games` - contains id, user_id, start_station_id, destination_station_id, score, status, started_at
+- Table `events` - contains id, description, effect
 - ...
 
 ## Main React Components
@@ -44,5 +49,6 @@
 - username, password (plus any other requested info)
 
 ## Use of AI Tools
+
 Briefly describe whether you used any AI tools (e.g., ChatGPT, GitHub Copilot, Claude) while working on this project, for which purposes (e.g., clarifying concepts, debugging, generating code), and how you verified or adapted their output.
 If you did not use any AI tools, simply state so.
