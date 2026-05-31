@@ -1,122 +1,237 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
+import { useContext, useState, useEffect } from 'react';
+import { Container, Row, Col, ListGroup, Badge, Spinner } from 'react-bootstrap';
+import { Navigate, Outlet, Route, Routes, useNavigate } from 'react-router-dom';
+
+import Footer from './components/Footer.jsx';
+import Header from './components/Header.jsx';
+import { LoginForm, Logout } from './components/LoginView.jsx';
+
+import UserContext from './contexts/UserContext.js';
+
+import { getNetwork } from './api/api.js';
+import { checkSession } from './api/auth.js'; 
 
 function App() {
-  const [count, setCount] = useState(0)
+  const navigate = useNavigate();
+
+  const [user, setUser] = useState({ id: undefined, username: undefined, name: undefined });
+  const [authLoading, setAuthLoading] = useState(true);
+  
+  const [network, setNetwork] = useState({ stations: [], lines: [], segments: [] });
+  const [loadingNetwork, setLoadingNetwork] = useState(true);
+
+  useEffect(() => {
+    checkSession()
+      .then(result => {
+        if (result) {
+          setUser({ id: result.id, username: result.username, name: result.name });
+        }
+      })
+      .finally(() => {
+        setAuthLoading(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    async function fetchNetwork() {
+      try {
+        setLoadingNetwork(true);
+        const networkData = await getNetwork();
+        setNetwork(networkData);
+      } catch (ex) {
+        console.error(ex);
+        navigate('/error');
+      } finally {
+        setLoadingNetwork(false);
+      }
+    }
+
+    if (user.id) {
+      fetchNetwork();
+    } else {
+      setLoadingNetwork(false);
+    }
+  }, [user.id, navigate]);
+
+  const doLogin = (newUser) => {
+    setUser({ id: newUser.id, username: newUser.username, name: newUser.is });
+    navigate('/home');
+  }
+
+  if (authLoading) {
+    return (
+      <Container className="mt-5 text-center">
+        <Spinner animation="border" variant="primary" />
+        <p className="mt-2">Verifica sessione in corso...</p>
+      </Container>
+    );
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    <UserContext.Provider value={user}>
+      <Container>
+        <Routes>
+          <Route path='/' element={<MainLayout doLogin={doLogin} />}>
+            <Route index element={<LoginView />} />
+            
+            <Route path='home' element={
+              loadingNetwork ? 
+                <div className="mt-5 text-center"><Spinner animation="border" /></div> 
+                : <HomeView network={network} />
+            } />
+            
+            <Route path='login' element={<LoginForm doLogin={doLogin} />} />
+            <Route path='logout' element={<Logout doLogin={doLogin} />} />
+            <Route path='error' element={<h1 className="mt-5 text-danger">Errore di connessione al server</h1>} />
+          </Route>
+        </Routes>
+      </Container>
+    </UserContext.Provider>
+  );
 }
 
-export default App
+function MainLayout(props) {
+  return (
+    <>
+      <Header doLogin={props.doLogin} />
+      <Outlet />
+      <Footer />
+    </>
+  );
+}
+
+function LoginView(props) {
+  const user = useContext(UserContext);
+  
+  if (user.id)
+    return <Navigate to='/home' replace />;
+
+  return (
+    <div className="mt-5">
+      <h2>Welcome to Last Race!</h2>
+      <p>Login to start your underground journey and build your route before time runs out.</p>
+    </div>
+  );
+}
+
+function HomeView({ network }) {
+  const user = useContext(UserContext);
+  const [selectedSegments, setSelectedSegments] = useState([]);
+
+  if (!user.id)
+    return <Navigate to='/login' replace />;
+
+  // search inside the selectedSegments array and return true if find s
+  const isSelected = (id) => selectedSegments.some(s => s.id === id);
+
+  const toggleSegment = (seg) => {
+    if (isSelected(seg.id)) {
+      setSelectedSegments(prev => prev.filter(s => s.id !== seg.id));
+    } else {
+      setSelectedSegments(prev => [...prev, seg]);
+    }
+  };
+
+  const availableSegments = network.segments.filter(s => !isSelected(s.id));
+
+  return (
+    <div className="mt-4">
+      <Row>
+        {/*COLONNA SINISTR*/}
+        
+        {/* le colonne in bootrstrap sono 12! e md=5 significa occupa 7 colonne su 12 */}
+        <Col className="mb-4">
+          <div className="sticky-top" style={{ top: '20px' }}>
+            
+            <img 
+              src="lastrace_map_draft.jpg" 
+              alt="Mappa Last Race" 
+              className="img-fluid rounded border mb-3 shadow-sm" 
+            />
+
+            {selectedSegments.length > 0 && (
+              <div className="bg-white p-3 border rounded shadow-sm">
+                <h4 className="mb-1">Il tuo percorso</h4>
+                <p className="text-muted small mb-3">Clicca su un segmento per rimuoverlo.</p>
+
+                <ListGroup variant="flush">
+                  {selectedSegments.map((seg, index) => (
+                    <div key={seg.id} className="d-flex align-items-center mb-2">
+                      <Badge bg="dark" pill className="me-2">
+                        {index + 1}
+                      </Badge>
+                      
+                      <div className="flex-grow-1">
+                        <SegmentItem
+                          seg={seg}
+                          onClick={() => toggleSegment(seg)}
+                          selected={true}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </ListGroup>
+
+                <button className="btn btn-primary w-100 mt-3 fw-bold">
+                  CONFERMA PERCORSO
+                </button>
+              </div>
+            )}
+          </div>
+        </Col>
+
+        {/* COLONNA DESTRA, segmenti */}
+        <Col md={4}>
+          <div className="bg-white p-3 border rounded shadow-sm">
+            <h4 className="mb-1">Segments</h4>
+            <p className="text-muted small mb-3">Seleziona i segmenti per costruire il tuo percorso.</p>
+
+            {availableSegments.length === 0 && (
+              <p className="text-muted fst-italic">Tutti i segmenti sono stati selezionati.</p>
+            )}
+
+            <ListGroup>
+              {availableSegments.map(seg => (
+                <SegmentItem
+                  key={seg.id}
+                  seg={seg}
+                  onClick={() => toggleSegment(seg)}
+                  selected={false}
+                />
+              ))}
+            </ListGroup>
+          </div>
+        </Col>
+      </Row>
+    </div>
+  );
+}
+
+function SegmentItem({ seg, onClick, selected }) {
+  const colorName = seg.color;
+
+  return (
+    <ListGroup.Item
+      action
+      onClick={onClick}
+      className={`d-flex text-primary justify-content-between align-items-center mb-2 rounded`}
+      // style={{ borderLeft: `10px solid var(--metro-${colorName})` }}
+      style={{border: `1.5px solid var(--metro-${colorName})`}}
+    >
+      <div className="d-flex fw-bold align-items-center">
+        <span>{seg.stationAName}</span>
+        <i className="bi bi-arrow-left-right mx-2 text-secondary"></i>
+        <span>{seg.stationBName}</span>
+      </div>
+
+      <div className="d-flex align-items-center">
+
+        
+        <i className={`bi fs-5 ${selected ? 'bi-x-circle' : 'bi-plus-circle'}`}></i>
+      </div>
+    </ListGroup.Item>
+  );
+}
+
+export default App;
