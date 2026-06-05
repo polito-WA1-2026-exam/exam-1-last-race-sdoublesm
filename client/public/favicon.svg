@@ -1,0 +1,14 @@
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- rosso -->
+  <circle cx="15" cy="15" r="10" stroke="rgb(229,57,53)" stroke-width="5.5" stroke-linecap="round"
+    stroke-dasharray="22 40.8" stroke-dashoffset="18" fill="none"/>
+  <!-- giallo -->
+  <circle cx="15" cy="15" r="10" stroke="rgb(249,168,37)" stroke-width="5.5" stroke-linecap="round"
+    stroke-dasharray="12 50.8" stroke-dashoffset="-7" fill="none"/>
+  <!-- blu -->
+  <circle cx="15" cy="15" r="10" stroke="rgb(21,101,192)" stroke-width="5.5" stroke-linecap="round"
+    stroke-dasharray="18 44.8" stroke-dashoffset="-22" fill="none"/>
+  <!-- verde -->
+  <circle cx="15" cy="15" r="10" stroke="rgb(46,125,50)" stroke-width="5.5" stroke-linecap="round"
+    stroke-dasharray="7 55.8" stroke-dashoffset="-43" fill="none"/>
+</svg>

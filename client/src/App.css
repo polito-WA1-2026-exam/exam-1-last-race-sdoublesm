@@ -1,0 +1,20 @@
+.metro-stripe { 
+  display: flex; 
+  height: 6px; 
+}
+
+.metro-stripe span { 
+  flex: 1; 
+}
+
+.metro-logo-title {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.metro-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}

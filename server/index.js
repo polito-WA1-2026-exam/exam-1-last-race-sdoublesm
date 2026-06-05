@@ -7,7 +7,7 @@ import passport from 'passport';
 import LocalStrategy from 'passport-local';
 import session from 'express-session';
 import dayjs from 'dayjs'
-import { getUser, getNetwork, getEvents } from "./dao.js";
+import { getUser, getRanking, getNetwork, getEvents } from "./dao.js";
 
 // init
 const app = express();
@@ -46,7 +46,6 @@ const isLoggedIn = (req, res, next) => {
   if(req.isAuthenticated()) {
     return next();
   }
-  console.log(req.user)
   return res.status(401).json({error: "Not authorized"});
 }
 
@@ -100,6 +99,23 @@ app.get('/api/network', isLoggedIn, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Errore del server durante il recupero della rete metropolitana." });
+  }
+});
+
+// GET /api/ranking
+app.get('/api/ranking', isLoggedIn, async (req, res) => {
+  try {
+    const ranking = await getRanking();
+    
+    if (!ranking || ranking.length === 0) {
+      return res.status(404).json({ error: "Classifica non trovata o vuota." });
+    }
+    
+    res.json(ranking);
+    console.log(ranking);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Errore del server durante il recupero della classifica." });
   }
 });
 

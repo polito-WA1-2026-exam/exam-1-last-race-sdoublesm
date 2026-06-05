@@ -1,237 +1,224 @@
-import './App.css'
-import { useContext, useState, useEffect } from 'react';
-import { Container, Row, Col, ListGroup, Badge, Spinner } from 'react-bootstrap';
-import { Navigate, Outlet, Route, Routes, useNavigate } from 'react-router-dom';
+import "./App.css";
+import { useState, useEffect, useContext } from "react";
+import { Button, Container, Spinner, Row, Col } from "react-bootstrap";
+import { Navigate, Outlet, Route, Routes, useNavigate } from "react-router-dom";
 
-import Footer from './components/Footer.jsx';
-import Header from './components/Header.jsx';
-import { LoginForm, Logout } from './components/LoginView.jsx';
+import Footer from "./components/Footer.jsx";
+import Header from "./components/Header.jsx";
+import { LoginForm, Logout } from "./components/LoginView.jsx";
+import { PlanningView } from "./components/PlanningView.jsx";
 
-import UserContext from './contexts/UserContext.js';
-
-import { getNetwork } from './api/api.js';
-import { checkSession } from './api/auth.js'; 
+import UserContext from "./contexts/UserContext.js";
+import { checkSession } from "./api/auth.js";
+import { RankingView } from "./components/RankingView.jsx";
 
 function App() {
-  const navigate = useNavigate();
+	const navigate = useNavigate();
 
-  const [user, setUser] = useState({ id: undefined, username: undefined, name: undefined });
-  const [authLoading, setAuthLoading] = useState(true);
-  
-  const [network, setNetwork] = useState({ stations: [], lines: [], segments: [] });
-  const [loadingNetwork, setLoadingNetwork] = useState(true);
+	const [user, setUser] = useState({
+		id: undefined,
+		username: undefined,
+		name: undefined,
+	});
+	const [authLoading, setAuthLoading] = useState(true);
 
-  useEffect(() => {
-    checkSession()
-      .then(result => {
-        if (result) {
-          setUser({ id: result.id, username: result.username, name: result.name });
-        }
-      })
-      .finally(() => {
-        setAuthLoading(false);
-      });
-  }, []);
+	useEffect(() => {
+		checkSession()
+			.then((result) => {
+				if (result) {
+					setUser({
+						id: result.id,
+						username: result.username,
+						name: result.name,
+					});
+				}
+			})
+			.finally(() => {
+				setAuthLoading(false);
+			});
+	}, []);
 
-  useEffect(() => {
-    async function fetchNetwork() {
-      try {
-        setLoadingNetwork(true);
-        const networkData = await getNetwork();
-        setNetwork(networkData);
-      } catch (ex) {
-        console.error(ex);
-        navigate('/error');
-      } finally {
-        setLoadingNetwork(false);
-      }
-    }
+	const doLogin = (newUser) => {
+		setUser({ id: newUser.id, username: newUser.username, name: newUser.name });
+		navigate("/");
+	};
 
-    if (user.id) {
-      fetchNetwork();
-    } else {
-      setLoadingNetwork(false);
-    }
-  }, [user.id, navigate]);
+	if (authLoading) {
+		return (
+			<Container className="mt-5 text-center">
+				<Spinner animation="border" variant="primary" />
+				<p className="mt-2 text-muted">Checking session...</p>
+			</Container>
+		);
+	}
 
-  const doLogin = (newUser) => {
-    setUser({ id: newUser.id, username: newUser.username, name: newUser.is });
-    navigate('/home');
-  }
+	return (
+		<UserContext.Provider value={user}>
+			<Container fluid className="p-0">
+				<Routes>
+					<Route path="/" element={<MainLayout doLogin={doLogin} />}>
+						<Route index element={<HomeView />} />
 
-  if (authLoading) {
-    return (
-      <Container className="mt-5 text-center">
-        <Spinner animation="border" variant="primary" />
-        <p className="mt-2">Verifica sessione in corso...</p>
-      </Container>
-    );
-  }
-
-  return (
-    <UserContext.Provider value={user}>
-      <Container>
-        <Routes>
-          <Route path='/' element={<MainLayout doLogin={doLogin} />}>
-            <Route index element={<LoginView />} />
-            
-            <Route path='home' element={
-              loadingNetwork ? 
-                <div className="mt-5 text-center"><Spinner animation="border" /></div> 
-                : <HomeView network={network} />
-            } />
-            
-            <Route path='login' element={<LoginForm doLogin={doLogin} />} />
-            <Route path='logout' element={<Logout doLogin={doLogin} />} />
-            <Route path='error' element={<h1 className="mt-5 text-danger">Errore di connessione al server</h1>} />
-          </Route>
-        </Routes>
-      </Container>
-    </UserContext.Provider>
-  );
+						<Route path="play" element={<PlanningView />} />
+						<Route path="ranking" element={<RankingView />} />
+						<Route path="login" element={<LoginForm doLogin={doLogin} />} />
+						<Route path="logout" element={<Logout doLogin={doLogin} />} />
+						<Route
+							path="error"
+							element={
+								<h1 className="mt-5 text-danger text-center">
+									Server connection error
+								</h1>
+							}
+						/>
+					</Route>
+				</Routes>
+			</Container>
+		</UserContext.Provider>
+	);
 }
 
 function MainLayout(props) {
-  return (
-    <>
-      <Header doLogin={props.doLogin} />
-      <Outlet />
-      <Footer />
-    </>
-  );
+	return (
+		<>
+			<Header doLogin={props.doLogin} />
+			<Outlet />
+			<Footer />
+		</>
+	);
 }
 
-function LoginView(props) {
-  const user = useContext(UserContext);
-  
-  if (user.id)
-    return <Navigate to='/home' replace />;
+function Rules() {
+	return (
+		<div className="bg-white p-4 rounded shadow-sm mb-5">
+			<h1 className="mb-4 text-center fw-bold">How to play</h1>
 
-  return (
-    <div className="mt-5">
-      <h2>Welcome to Last Race!</h2>
-      <p>Login to start your underground journey and build your route before time runs out.</p>
-    </div>
-  );
+			<div className="px-2">
+				<Row className="align-items-center mb-4">
+					<Col xs="auto" className="pe-4">
+						<i
+							className="bi bi-map text-primary"
+							style={{ fontSize: "3.5rem" }}
+						></i>
+					</Col>
+					<Col>
+						<h4 className="fw-bold mb-1">1. Setup</h4>
+						<p className="text-muted mb-0 fs-5">
+							You start the game with <strong>20 coins</strong>. Carefully
+							observe the complete map of the underground network and prepare
+							for the challenge.
+						</p>
+					</Col>
+				</Row>
+
+				<Row className="align-items-center mb-4">
+					<Col xs="auto" className="pe-4">
+						<i
+							className="bi bi-stopwatch text-primary"
+							style={{ fontSize: "3.5rem" }}
+						></i>
+					</Col>
+					<Col>
+						<h4 className="fw-bold mb-1">2. Planning</h4>
+						<p className="text-muted mb-0 fs-5">
+							You have <strong>90 seconds</strong>. The map hides the lines! You
+							will be assigned a starting and a destination station: select the
+							segments in sequence to create a valid route before time runs out.
+						</p>
+					</Col>
+				</Row>
+
+				<Row className="align-items-center mb-4">
+					<Col xs="auto" className="pe-4">
+						<i
+							className="bi bi-train-front text-primary"
+							style={{ fontSize: "3.5rem" }}
+						></i>
+					</Col>
+					<Col>
+						<h4 className="fw-bold mb-1">3. Execution</h4>
+						<p className="text-muted mb-0 fs-5">
+							The route is executed step by step. Watch out for the unexpected:
+							at each stop, a <strong>random event</strong> will make you gain
+							or lose coins. If the submitted route is invalid, you lose all
+							your coins!
+						</p>
+					</Col>
+				</Row>
+
+				<Row className="align-items-center">
+					<Col xs="auto" className="pe-4">
+						<i
+							className="bi bi-trophy text-primary"
+							style={{ fontSize: "3.5rem" }}
+						></i>
+					</Col>
+					<Col>
+						<h4 className="fw-bold mb-1">4. Result</h4>
+						<p className="text-muted mb-0 fs-5">
+							Reach your destination with as many coins as possible. Registered
+							players compete in the <strong>General Ranking</strong> with their
+							best score.
+						</p>
+					</Col>
+				</Row>
+			</div>
+		</div>
+	);
 }
 
-function HomeView({ network }) {
-  const user = useContext(UserContext);
-  const [selectedSegments, setSelectedSegments] = useState([]);
+function HomeView() {
+	const user = useContext(UserContext);
+	const navigate = useNavigate();
 
-  if (!user.id)
-    return <Navigate to='/login' replace />;
-
-  // search inside the selectedSegments array and return true if find s
-  const isSelected = (id) => selectedSegments.some(s => s.id === id);
-
-  const toggleSegment = (seg) => {
-    if (isSelected(seg.id)) {
-      setSelectedSegments(prev => prev.filter(s => s.id !== seg.id));
-    } else {
-      setSelectedSegments(prev => [...prev, seg]);
-    }
-  };
-
-  const availableSegments = network.segments.filter(s => !isSelected(s.id));
-
-  return (
-    <div className="mt-4">
-      <Row>
-        {/*COLONNA SINISTR*/}
-        
-        {/* le colonne in bootrstrap sono 12! e md=5 significa occupa 7 colonne su 12 */}
-        <Col className="mb-4">
-          <div className="sticky-top" style={{ top: '20px' }}>
-            
-            <img 
-              src="lastrace_map_draft.jpg" 
-              alt="Mappa Last Race" 
-              className="img-fluid rounded border mb-3 shadow-sm" 
-            />
-
-            {selectedSegments.length > 0 && (
-              <div className="bg-white p-3 border rounded shadow-sm">
-                <h4 className="mb-1">Il tuo percorso</h4>
-                <p className="text-muted small mb-3">Clicca su un segmento per rimuoverlo.</p>
-
-                <ListGroup variant="flush">
-                  {selectedSegments.map((seg, index) => (
-                    <div key={seg.id} className="d-flex align-items-center mb-2">
-                      <Badge bg="dark" pill className="me-2">
-                        {index + 1}
-                      </Badge>
-                      
-                      <div className="flex-grow-1">
-                        <SegmentItem
-                          seg={seg}
-                          onClick={() => toggleSegment(seg)}
-                          selected={true}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </ListGroup>
-
-                <button className="btn btn-primary w-100 mt-3 fw-bold">
-                  CONFERMA PERCORSO
-                </button>
-              </div>
-            )}
-          </div>
-        </Col>
-
-        {/* COLONNA DESTRA, segmenti */}
-        <Col md={4}>
-          <div className="bg-white p-3 border rounded shadow-sm">
-            <h4 className="mb-1">Segments</h4>
-            <p className="text-muted small mb-3">Seleziona i segmenti per costruire il tuo percorso.</p>
-
-            {availableSegments.length === 0 && (
-              <p className="text-muted fst-italic">Tutti i segmenti sono stati selezionati.</p>
-            )}
-
-            <ListGroup>
-              {availableSegments.map(seg => (
-                <SegmentItem
-                  key={seg.id}
-                  seg={seg}
-                  onClick={() => toggleSegment(seg)}
-                  selected={false}
-                />
-              ))}
-            </ListGroup>
-          </div>
-        </Col>
-      </Row>
-    </div>
-  );
-}
-
-function SegmentItem({ seg, onClick, selected }) {
-  const colorName = seg.color;
-
-  return (
-    <ListGroup.Item
-      action
-      onClick={onClick}
-      className={`d-flex text-primary justify-content-between align-items-center mb-2 rounded`}
-      // style={{ borderLeft: `10px solid var(--metro-${colorName})` }}
-      style={{border: `1.5px solid var(--metro-${colorName})`}}
-    >
-      <div className="d-flex fw-bold align-items-center">
-        <span>{seg.stationAName}</span>
-        <i className="bi bi-arrow-left-right mx-2 text-secondary"></i>
-        <span>{seg.stationBName}</span>
-      </div>
-
-      <div className="d-flex align-items-center">
-
-        
-        <i className={`bi fs-5 ${selected ? 'bi-x-circle' : 'bi-plus-circle'}`}></i>
-      </div>
-    </ListGroup.Item>
-  );
+	return (
+		<Container className="mt-5">
+			<div className="text-center bg-white p-5 rounded shadow-sm bg-secondary">
+				<h1 className="fw-bold mb-3">Welcome to Last Race!</h1>
+				{user.id ? (
+					<>
+						<p className="text-muted fs-5">
+							Welcome back, <strong>{user.name || user.username}</strong>! Are
+							you ready to continue your underground journey?
+						</p>
+						<Button
+							variant="primary"
+							size="lg"
+							className="rounded-pill fw-bold px-5 mt-2"
+							onClick={() => navigate("/play")}
+						>
+							<i className="bi bi-controller me-2"></i> START THE GAME
+						</Button>
+						<p className="text-muted fs-5 mt-4">Curious about results?</p>
+						<Button
+							variant="primary"
+							size="md"
+							className="bg-white text-black rounded-pill fw-bold px-5"
+							onClick={() => navigate("/ranking")}
+						>
+							<i className="bi bi-trophy me-2"></i> Discover your rank
+						</Button>
+					</>
+				) : (
+					<>
+						<p className="lead text-muted mb-4 fs-4">
+							Login to start your underground journey and build your route
+							before time runs out.
+						</p>
+						<Button
+							variant="primary"
+							size="lg"
+							className="rounded-pill fw-bold px-5 mt-2"
+							onClick={() => navigate("/login")}
+						>
+							<i className="bi bi-box-arrow-in-right me-2"></i> LOGIN TO PLAY
+						</Button>
+					</>
+				)}
+			</div>
+			<Rules />
+		</Container>
+	);
 }
 
 export default App;

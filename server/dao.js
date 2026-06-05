@@ -109,12 +109,6 @@ export const getNetwork = async () => {
       }
     }
 
-    console.log({
-      stations: Object.values(stationsMap),
-      lines: Object.values(linesMap),
-      segments: segments
-    })
-
     return {
       stations: Object.values(stationsMap),
       lines: Object.values(linesMap),
@@ -176,12 +170,18 @@ export const updateGame = (gameId, finalScore, finalStatus) => {
 export const getRanking = () => {
   return new Promise((resolve, reject) => {
     const sql = `
-      SELECT users.username, MAX(games.score) as best_score 
-      FROM games JOIN users ON games.user_id = users.id 
+      SELECT 
+        users.id, 
+        users.username, 
+        MAX(games.score) as best_score,
+        RANK() OVER (ORDER BY MAX(games.score) DESC) as position
+      FROM games 
+      JOIN users ON games.user_id = users.id 
       WHERE games.status = 'completed' 
       GROUP BY users.id 
       ORDER BY best_score DESC
     `;
+    
     db.all(sql, [], (err, rows) => {
       if (err) reject(err);
       else resolve(rows);

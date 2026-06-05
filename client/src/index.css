@@ -1,7 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&display=swap');
 
-:root {
-  /* sovrascrive colori globali usati da bootstrap */
+/* sovrascrive colori globali usati da bootstrap */
+:root, [data-bs-theme="light"] {
+  /* override colori base bootstrap */
   --bs-primary: #000000;
   --bs-primary-rgb: 0, 0, 0;
   
@@ -9,10 +10,10 @@
   --bs-secondary-rgb: 117, 117, 117;
   
   /* colori relativi alle linee metropolitane */
-  --metro-red:    #E53935;
-  --metro-yellow: #F9A825;
-  --metro-blue:   #1565C0;
-  --metro-green:  #2E7D32;
+  --metro-red:    rgb(229, 57, 53);
+  --metro-yellow: rgb(249, 168, 37);
+  --metro-blue:   rgb(21, 101, 192);
+  --metro-green:  rgb(46, 125, 50);
 
   --metro-red-light:    #ffdee3;
   --metro-yellow-light: #fffde4;
@@ -32,26 +33,6 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
-}
-
-.metro-stripe { 
-  display: flex; 
-  height: 6px; 
-}
-.metro-stripe span { 
-  flex: 1; 
-}
-
-.metro-logo-title {
-  font-size: 26px;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.metro-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
 }
 
 .btn-primary {

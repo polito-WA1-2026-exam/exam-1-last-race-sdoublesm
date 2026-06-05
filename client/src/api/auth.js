@@ -13,7 +13,6 @@ async function doLogin(username, password) {
 
     if (response.ok) {
         const user = await response.json()
-        console.log("OK LOGIN: ", user)
         return user
     } else {
         throw new Error("Login failed")

@@ -19,3 +19,22 @@ export async function getNetwork() {
     throw new Error("Network error", { cause: ex });
   }
 }
+
+export async function getRanking() {
+  try {
+    const response = await fetch(`${API_URL}/ranking`, {
+      credentials: 'include'
+    });
+
+    if (response.ok) {
+      const rankingData = await response.json();
+      return rankingData;
+    } else if (response.status === 404) {
+      return null;
+    } else {
+      throw new Error('HTTP error in getRanking, code=' + response.status);
+    }
+  } catch (ex) {
+    throw new Error("Error", { cause: ex });
+  }
+}
