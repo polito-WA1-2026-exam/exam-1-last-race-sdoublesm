@@ -41,6 +41,7 @@ h1, h2, h3, h4, h5, h6 {
   --bs-btn-hover-bg: #333333;
   --bs-btn-hover-border-color: #333333;
   --bs-btn-active-bg: #1a1a1a;
+  --bs-btn-disabled-bg: #1a1a1a;
 }
 
 .btn-secondary {

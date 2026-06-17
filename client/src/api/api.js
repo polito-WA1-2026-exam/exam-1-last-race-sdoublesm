@@ -38,3 +38,49 @@ export async function getRanking() {
     throw new Error("Error", { cause: ex });
   }
 }
+
+export async function startGame() {
+    try {
+        const response = await fetch(`${API_URL}/games`, {
+            method: 'POST',
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            const newGameData = await response.json();
+            return newGameData;
+        } else {
+            // 4xx or 5xx status code
+            throw new Error('HTTP error in startGame, code=' + response.status);
+        }
+    } catch (ex) {
+        // handle network errors + parsing errors
+        throw new Error("Network error in startGame", { cause: ex });
+    }
+}
+
+export async function submitRoute(gameId, routeArray) {
+    try {
+        const response = await fetch(`${API_URL}/games/${gameId}/submit`, {
+            method: 'POST',
+            body: JSON.stringify({ route: routeArray }),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            const resultData = await response.json();
+            return resultData; // Restituisce { status, finalScore, journey: [...] } o eventuale fallimento
+        } else {
+            // Se il server restituisce 400 (già conclusa), 422 (array non valido), o 404
+            // Possiamo provare a estrarre il messaggio di errore dal backend
+            const errData = await response.json().catch(() => ({})); 
+            throw new Error(errData.error || 'HTTP error in submitRoute, code=' + response.status);
+        }
+    } catch (ex) {
+        throw new Error("Network error in submitRoute", { cause: ex });
+    }
+}
+

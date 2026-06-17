@@ -1,6 +1,7 @@
 import sqlite from "sqlite3";
 import crypto from "crypto";
 import { Station, Line, Segment, Event, Game } from "./models.js";
+import { User } from "../client/src/models.js";
 
 const db = new sqlite.Database("database.sqlite", (err) => {
   if (err) throw err;
@@ -9,11 +10,27 @@ const db = new sqlite.Database("database.sqlite", (err) => {
 // ** USER DAO **
 export const getUser = (username, password) => {
   return new Promise((resolve, reject) => {
-    db.get("SELECT * FROM users WHERE username = ?", [username], (err, row) => {
+    // calcoliamo il MAX score e il COUNT delle partite completate.
+    // usiamo una LEFT JOIN per prendere anche gli utenti che non hanno ancora giocato
+    const sql = `
+    SELECT users.*, 
+             MAX(games.score) as best_score,
+             COUNT(games.id) as total_games
+      FROM users
+      LEFT JOIN games ON users.id = games.user_id AND games.status = 'completed'
+      WHERE users.username = ?
+      GROUP BY users.id`;
+    
+    db.get(sql, [username], (err, row) => {
       if (err) reject(err); 
       else if (row === undefined) resolve(false); 
       else {
-        const user = { id: row.id, username: row.username };
+        const user = new User(
+          row.id, 
+          row.username, 
+          row.best_score || 0, 
+          row.total_games || 0);
+        
         crypto.scrypt(password, row.salt, 16, function(err, hashedPassword) {
           if (err) reject(err);
           if(!crypto.timingSafeEqual(Buffer.from(row.hashed_password, "hex"), hashedPassword))
@@ -27,7 +44,6 @@ export const getUser = (username, password) => {
 };
 
 // ** NETWORK DAO **
-
 export const getStations = () => {
   return new Promise((resolve, reject) => {
     const sql = "SELECT * FROM stations";

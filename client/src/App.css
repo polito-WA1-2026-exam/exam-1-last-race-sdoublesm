@@ -8,13 +8,23 @@
 }
 
 .metro-logo-title {
-  font-size: 20px;
-  font-weight: 700;
-  line-height: 1;
+  font-size: 24px; 
+  font-weight: bold;
+  letter-spacing: 0.2px;
+  margin: 200px;
+  padding-left: 10px;
+}
+
+.metro-logo-title a {
+  transition: color 0.2s ease-in-out;
+}
+.metro-logo-title a:hover {
+  color: var(--metro-red) !important;
 }
 
 .metro-dot {
-  width: 9px;
-  height: 9px;
+  display: inline-block;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
 }

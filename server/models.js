@@ -1,8 +1,10 @@
 import dayjs from "dayjs";
 
-function User(){
+function User(id, username, bestScore, totalGames){
   this.id  = id;
   this.username = username;
+  this.bestScore = bestScore;
+  this.totalGames = totalGames;
 }
 
 function Station(id, name, lines = [], isInterchange = false) {
@@ -54,4 +56,4 @@ function StepResult(stationA, stationB, eventDescription, coinEffect, updatedTot
   this.updatedTotal = updatedTotal;
 }
 
-export { Station, Line, Segment, Event, Game, StepResult };
+export { User, Station, Line, Segment, Event, Game, StepResult };

@@ -21,6 +21,7 @@ function PlanningView() {
 
 	if (!user.id) return <Navigate to="/login" replace />;
 
+	// ! to fix condition call
 	useEffect(() => {
 		const timerId = setInterval(() => {
 			setTimeLeft((prev) => {
@@ -35,6 +36,7 @@ function PlanningView() {
 		return () => clearInterval(timerId);
 	}, []);
 
+	// ! to fix condition call
 	useEffect(() => {
 		async function fetchNetwork() {
 			try {
@@ -82,7 +84,7 @@ function PlanningView() {
 					<div className="sticky-top" style={{ top: "20px" }}>
 						<img
 							src="complete_map.png"
-							alt="Mappa Last Race"
+							alt="LastRace map"
 							className="img-fluid rounded border mb-3 shadow-sm w-100"
 						/>
 
