@@ -20,8 +20,8 @@ function SetupView() {
 			const newGameData = await startGame();
 			// newGameData ritorna {gameId, startStationId, destinationStationId, startedAt}
 
-			// redirect a planning phase passando i dati della partita appena creata
-			navigate("/planning", { state: { game: newGameData } });
+			// redirect a planning phase
+			navigate(`/planning/${newGameData.gameId}`);
 		} catch (error) {
 			console.error("Error while starting the new game.", error);
 			navigate("/error");
@@ -35,8 +35,8 @@ function SetupView() {
 			<Row className="justify-content-center">
 				<Col md={10} lg={8}>
 					<div className="mb-4">
-						<h2 className="fw-bold">Setup Phase</h2>
-						<p className="text-secondary">
+						<h1 className="fw-bold">Phase 1: Setup</h1>
+						<p className="text-secondary text-start">
 							Study the undergorund map carefully. The network will not change
 							during the game. When you're ready, begin the mission to reach
 							your destination.
@@ -53,7 +53,7 @@ function SetupView() {
 
 					<div className="d-grid gap-2 col-md-6 mx-auto mb-5">
 						<button
-							className="btn btn-dark fw-bold fs-5 py-3 rounded-pill text-uppercase"
+							className="btn btn-dark fw-bold fs-5 py-3 text-uppercase"
 							style={{ letterSpacing: "1px" }}
 							onClick={handleStartGame}
 							disabled={starting}

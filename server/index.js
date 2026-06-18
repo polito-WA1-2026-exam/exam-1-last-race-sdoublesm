@@ -6,7 +6,7 @@ import passport from 'passport';
 import LocalStrategy from 'passport-local';
 import session from 'express-session';
 import dayjs from 'dayjs'
-import { getUser, getRanking, getNetwork, getEvents, createGame } from "./dao.js";
+import { getUser, getRanking, getNetwork, getEvents, createGame, getGame, updateGame } from "./dao.js";
 
 // init
 const app = express();

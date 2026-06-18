@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { Table, Spinner, Badge } from "react-bootstrap";
 import { getRanking } from "../api/api.js";
 import UserContext from "../contexts/UserContext.js";
+import { Navigate } from "react-router";
 
 function RankingView() {
 	const [ranking, setRanking] = useState([]);
@@ -11,6 +12,7 @@ function RankingView() {
 
 	useEffect(() => {
 		async function fetchRanking() {
+			if (!user.id) return;
 			try {
 				setLoading(true);
 				const data = await getRanking();
@@ -23,7 +25,9 @@ function RankingView() {
 		}
 
 		fetchRanking();
-	}, []);
+	}, [user.id]);
+
+	if (!user.id) return <Navigate to="/login" replace />;
 
 	if (loading) {
 		return (

@@ -3,14 +3,10 @@ import { useNavigate, Link } from "react-router-dom";
 import UserContext from "../contexts/UserContext";
 
 function UserInfo({ user }) {
-	console.log(user);
 	return (
-		<div className="d-flex align-items-center gap-2 border rounded-pill px-4 py-2 bg-white shadow-sm">
-			<span
-				className="badge bg-light text-dark border d-flex align-items-center me-1"
-				style={{ fontSize: "0.85rem" }}
-			>
-				<i className="bi bi-trophy-fill text-warning me-2"></i>
+		<div className="d-flex align-items-center gap-3 border rounded-pill px-3 py-2 bg-white shadow-sm">
+			<span className="badge border text-dark" title="Best Score">
+				<i className="bi bi-trophy-fill text-warning me-1"></i>
 				{user.bestScore}
 			</span>
 
@@ -18,24 +14,15 @@ function UserInfo({ user }) {
 
 			<div className="d-flex align-items-center gap-1" title="Status: Online">
 				<span
-					className="metro-dot me-1"
+					className="metro-dot"
 					style={{ background: "var(--metro-green)" }}
 				/>
-				<span
-					className="text-secondary d-none d-md-inline"
-					style={{ fontSize: "0.85rem" }}
-				>
-					online
-				</span>
+				<small className="text-secondary d-none d-md-inline">online</small>
 			</div>
 
-			<div className="vr mx-1"></div>
+			<div className="vr"></div>
 
-			<Link
-				to="/logout"
-				className="text-danger text-decoration-none fs-5 ms-1"
-				title="Logout"
-			>
+			<Link to="/logout" className="text-danger fs-5" title="Logout">
 				<i className="bi bi-box-arrow-right"></i>
 			</Link>
 		</div>
@@ -58,29 +45,35 @@ function Header() {
 				<span style={{ background: "var(--metro-green)" }} />
 			</div>
 
-			<div className="d-flex align-items-center justify-content-between px-4 py-1 mt-2 mb-2">
-				<div className="d-flex align-items-center gap-2">
-					<div className="metro-logo-title m-0">
-						<Link to="/" className="text-decoration-none text-dark">
-							LastRace
-						</Link>
+			<div className="d-flex align-items-center justify-content-between px-4 py-3">
+				<div className="d-flex align-items-center gap-3">
+					<Link
+						to="/"
+						className="metro-logo-title text-decoration-none text-dark m-0"
+					>
+						LastRace
+					</Link>
+
+					<div className="d-flex gap-1">
+						<span
+							className="metro-dot"
+							style={{ background: "var(--metro-red)" }}
+						/>
+						<span
+							className="metro-dot"
+							style={{ background: "var(--metro-yellow)" }}
+						/>
+						<span
+							className="metro-dot"
+							style={{ background: "var(--metro-blue)" }}
+						/>
+						<span
+							className="metro-dot"
+							style={{ background: "var(--metro-green)" }}
+						/>
 					</div>
-					<span
-						className="metro-dot"
-						style={{ background: "var(--metro-red)", marginLeft: "10px" }}
-					/>
-					<span
-						className="metro-dot"
-						style={{ background: "var(--metro-yellow)" }}
-					/>
-					<span
-						className="metro-dot"
-						style={{ background: "var(--metro-blue)" }}
-					/>
-					<span
-						className="metro-dot"
-						style={{ background: "var(--metro-green)" }}
-					/>
+
+					<span className="text-secondary">| Survive the rails</span>
 				</div>
 
 				<div>
@@ -88,7 +81,7 @@ function Header() {
 						<UserInfo user={user} />
 					) : (
 						<button
-							className="btn btn-primary fw-bold px-4"
+							className="btn btn-dark fw-bold px-4 "
 							onClick={() => navigate("/login")}
 						>
 							LOGIN

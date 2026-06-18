@@ -44,7 +44,7 @@ function App() {
 	if (authLoading) {
 		return (
 			<Container className="mt-5 text-center">
-				<Spinner animation="border" variant="primary" />
+				<Spinner animation="grow" variant="primary" />
 				<p className="mt-2 text-muted">Checking session...</p>
 			</Container>
 		);
@@ -58,7 +58,7 @@ function App() {
 						<Route index element={<HomeView />} />
 
 						<Route path="play" element={<SetupView />} />
-						<Route path="planning" element={<PlanningView />} />
+						<Route path="/planning/:gameId" element={<PlanningView />} />
 
 						<Route path="ranking" element={<RankingView />} />
 						<Route path="login" element={<LoginForm doLogin={doLogin} />} />
@@ -67,7 +67,7 @@ function App() {
 							path="error"
 							element={
 								<h1 className="mt-5 text-danger text-center">
-									Server connection error
+									[!] Server connection error
 								</h1>
 							}
 						/>
@@ -165,7 +165,7 @@ function HomeView() {
 	const navigate = useNavigate();
 
 	return (
-		<Container className="mt-5">
+		<Container className="mt-2">
 			<div className="text-center bg-white p-5 rounded shadow-sm bg-secondary">
 				<h1 className="fw-bold mb-3">Welcome to LastRace!</h1>
 				{user.id ? (
@@ -177,7 +177,7 @@ function HomeView() {
 						<Button
 							variant="primary"
 							size="lg"
-							className="rounded-pill fw-bold px-5 mt-2"
+							className="fw-bold px-5 mt-2"
 							onClick={() => navigate("/play")}
 						>
 							<i className="bi bi-controller me-2"></i> START THE GAME

@@ -78,7 +78,7 @@ function Logout(props) {
 
 	return (
 		<div className="mt-5 text-center">
-			<Spinner animation="border" variant="primary" />
+			<Spinner animation="grow" variant="primary" />
 			<p className="mt-2 text-muted">Logging out...</p>
 		</div>
 	);
