@@ -1,6 +1,5 @@
 const API_URL = 'http://localhost:3001/api';
 
-// Recupera l'intero grafo della rete metropolitana
 export async function getNetwork() {
   try {
     const response = await fetch(`${API_URL}/network`, {
@@ -39,6 +38,25 @@ export async function getRanking() {
   }
 }
 
+export async function getGame(gameId) {
+  try {
+    const response = await fetch(`${API_URL}/games/${gameId}`, {
+      credentials: 'include'
+    });
+
+    if (response.ok) {
+      const gameData = await response.json();
+      return gameData;
+    } else if (response.status === 404) {
+      return null;
+    } else {
+      throw new Error('HTTP error in getGame, code=' + response.status);
+    }
+  } catch (ex) {
+    throw new Error("Network error in getGame", { cause: ex });
+  }
+}
+
 export async function startGame() {
     try {
         const response = await fetch(`${API_URL}/games`, {
@@ -72,10 +90,9 @@ export async function submitRoute(gameId, routeArray) {
 
         if (response.ok) {
             const resultData = await response.json();
-            return resultData; // Restituisce { status, finalScore, journey: [...] } o eventuale fallimento
+            return resultData; // TODO: restituisce { status, finalScore, journey: [...] } o eventuale fallimento
+            // dove journey è un array di StepResult
         } else {
-            // Se il server restituisce 400 (già conclusa), 422 (array non valido), o 404
-            // Possiamo provare a estrarre il messaggio di errore dal backend
             const errData = await response.json().catch(() => ({})); 
             throw new Error(errData.error || 'HTTP error in submitRoute, code=' + response.status);
         }

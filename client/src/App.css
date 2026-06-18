@@ -4,24 +4,19 @@
 }
 
 .metro-stripe span { 
-  flex: 1; 
+  flex: 1;
 }
 
 .metro-logo-title {
   font-size: 24px; 
   font-weight: bold;
   letter-spacing: 0.2px;
-  margin: 200px;
   padding-left: 10px;
-}
-
-.metro-logo-title a {
   transition: color 0.2s ease-in-out;
 }
-.metro-logo-title a:hover {
+.metro-logo-title:hover {
   color: var(--metro-red) !important;
 }
-
 .metro-dot {
   display: inline-block;
   width: 10px;

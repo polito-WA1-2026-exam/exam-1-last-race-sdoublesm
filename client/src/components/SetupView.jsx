@@ -16,14 +16,13 @@ function SetupView() {
 	const handleStartGame = async () => {
 		try {
 			setStarting(true);
-			// chiama POST /api/games
-			const newGameData = await startGame();
-			// newGameData ritorna {gameId, startStationId, destinationStationId, startedAt}
+			const newGameData = await startGame(); // chiama POST /api/games
+			// che ritorna {gameId, startStationId, destinationStationId, startedAt}
 
-			// redirect a planning phase
-			navigate(`/planning/${newGameData.gameId}`);
+			// ! redirect a planning phase PASSANDO VIA PARAM il gameId
+			navigate(`/play/${newGameData.gameId}`);
 		} catch (error) {
-			console.error("Error while starting the new game.", error);
+			console.error("Error while starting a new game.", error);
 			navigate("/error");
 		} finally {
 			setStarting(false);
@@ -31,7 +30,7 @@ function SetupView() {
 	};
 
 	return (
-		<Container className="mt-4 text-center">
+		<Container className="mt-4 text-center bg-white rounded-4 py-5 px-3 shadow-lg ">
 			<Row className="justify-content-center">
 				<Col md={10} lg={8}>
 					<div className="mb-4">
@@ -39,15 +38,15 @@ function SetupView() {
 						<p className="text-secondary text-start">
 							Study the undergorund map carefully. The network will not change
 							during the game. When you're ready, begin the mission to reach
-							your destination.
+							your destination. Be fast, you only have 90 seconds!
 						</p>
 					</div>
 
-					<div className="bg-white p-3 border rounded shadow-sm mb-4">
+					<div className="bg-white my-5">
 						<img
 							src="/complete_map.png"
 							alt="Complete map"
-							className="img-fluid rounded border"
+							className="img-fluid rounded"
 						/>
 					</div>
 
@@ -64,6 +63,7 @@ function SetupView() {
 										as="span" // lo trasforma in uno span (elemento inline) per allineam.
 										animation="grow"
 										size="sm"
+										variant="secondary"
 										className="me-2"
 									/>
 									Starting...

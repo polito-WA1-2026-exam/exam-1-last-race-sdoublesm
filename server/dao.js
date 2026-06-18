@@ -157,13 +157,13 @@ export const createGame = (userId, startStationId, destinationStationId) => {
   });
 };
 
-export const getGame = (gameId) => {
+export const getGame = (gameId, userId) => {
   return new Promise((resolve, reject) => {
     const sql = `
       SELECT games.*, users.username 
       FROM games JOIN users ON games.user_id = users.id 
-      WHERE games.id = ?`;
-    db.get(sql, [gameId], (err, row) => {
+      WHERE games.id = ? AND games.user_id = ?`;
+    db.get(sql, [gameId, userId], (err, row) => {
       if (err) reject(err);
       else if (row !== undefined)
         resolve(new Game(row.id, row.user_id, row.username, row.start_station_id, row.destination_station_id, row.score, row.status, row.started_at));

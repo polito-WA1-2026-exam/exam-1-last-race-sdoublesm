@@ -43,8 +43,9 @@ function App() {
 
 	if (authLoading) {
 		return (
-			<Container className="mt-5 text-center">
-				<Spinner animation="grow" variant="primary" />
+			// vh-100 imposta l'altezza del contenitore al 100% della viewport height (altezza visibile browser)
+			<Container className="d-flex align-items-center justify-content-center gap-3 vh-100">
+				<Spinner as="span" animation="grow" variant="secondary" />
 				<p className="mt-2 text-muted">Checking session...</p>
 			</Container>
 		);
@@ -58,18 +59,14 @@ function App() {
 						<Route index element={<HomeView />} />
 
 						<Route path="play" element={<SetupView />} />
-						<Route path="/planning/:gameId" element={<PlanningView />} />
+						<Route path="/play/:gameId" element={<PlanningView />} />
 
 						<Route path="ranking" element={<RankingView />} />
 						<Route path="login" element={<LoginForm doLogin={doLogin} />} />
 						<Route path="logout" element={<Logout doLogin={doLogin} />} />
 						<Route
 							path="error"
-							element={
-								<h1 className="mt-5 text-danger text-center">
-									[!] Server connection error
-								</h1>
-							}
+							element={<h1 className="mt-5 text-danger text-center">[!]</h1>}
 						/>
 					</Route>
 				</Routes>
@@ -90,7 +87,7 @@ function MainLayout(props) {
 
 function Rules() {
 	return (
-		<div className="bg-white rounded shadow-sm mt-2 p-5">
+		<div className="bg-white rounded-4 shadow mt-2 p-5">
 			<h1 className="mb-4 fw-bold text-center">Rules: How to play?</h1>
 			<p className="text-center mb-0 fs-5 mb">
 				Mind the gap. Make the connection. Survive the rails.
@@ -166,9 +163,10 @@ function HomeView() {
 
 	return (
 		<Container className="mt-2">
-			<div className="text-center bg-white p-5 rounded shadow-sm bg-secondary">
+			<div className="text-center bg-white p-5 my-4 rounded-4 shadow">
 				<h1 className="fw-bold mb-3">Welcome to LastRace!</h1>
 				{user.id ? (
+					// utente loggato
 					<>
 						<p className="text-muted fs-5">
 							Welcome back, <strong>{user.name || user.username}</strong>! Are
@@ -177,14 +175,13 @@ function HomeView() {
 						<Button
 							variant="primary"
 							size="lg"
-							className="fw-bold px-5 mt-2"
+							className="fw-bold px-5 mt-2 fs-4"
 							onClick={() => navigate("/play")}
 						>
 							<i className="bi bi-controller me-2"></i> START THE GAME
 						</Button>
 						<p className="text-muted fs-5 mt-4">Curious about results?</p>
 						<Button
-							variant="primary"
 							size="md"
 							className="bg-white text-black rounded-pill fw-bold px-5"
 							onClick={() => navigate("/ranking")}
@@ -193,13 +190,13 @@ function HomeView() {
 						</Button>
 					</>
 				) : (
+					// visitatore non loggato
 					<>
-						<p className="lead text-muted mb-4 fs-4">
+						<p className="lead text-muted mb-4 fs-5">
 							Login to start your underground journey and build your route
 							before time runs out.
 						</p>
 						<Button
-							variant="primary"
 							size="lg"
 							className="rounded-pill fw-bold px-5 mt-2"
 							onClick={() => navigate("/login")}

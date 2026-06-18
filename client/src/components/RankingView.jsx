@@ -32,24 +32,27 @@ function RankingView() {
 	if (loading) {
 		return (
 			<div className="mt-5 text-center">
-				<Spinner animation="grow" />
+				<Spinner animation="grow" variant="secondary" />
 				<p className="mt-2">Loading ranking...</p>
 			</div>
 		);
 	}
 
 	return (
-		<div className="container mt-4">
+		<div className="container mt-4 p-5 bg-white rounded-4 shadow-lg">
 			<div className="text-center mb-4">
 				<h2>General Ranking</h2>
-				<p className="text-secondary">Best underground players.</p>
+				<p className="text-secondary">
+					Only the fastest survive the rails. Do you have what it takes to climb
+					to the top?
+				</p>
 			</div>
 
 			<Table bordered hover responsive className="text-center">
 				<thead className="table-dark">
 					<tr>
-						<th>Pos</th>
-						<th>Player</th>
+						<th>Position</th>
+						<th>Username</th>
 						<th>Best Score</th>
 					</tr>
 				</thead>
@@ -65,10 +68,10 @@ function RankingView() {
 							>
 								<td>{player.position}°</td>
 
-								<td>
+								<td className="text-center">
 									{player.username}
 									{isCurrentUser && (
-										<Badge className="ms-2 bg-secondary">You</Badge>
+										<Badge className="ms-3 bg-secondary">You</Badge>
 									)}
 								</td>
 

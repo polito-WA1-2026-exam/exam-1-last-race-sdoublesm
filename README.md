@@ -2,6 +2,18 @@
 
 ## Student: s358543 TENORE MIRKO
 
+# TODO
+
+- [ ] Gestire tutte le eccezioni ritornate da API
+- [ ] !!! Gestire il fatto che quando un utente accede a play/GAMEID che non gli appartiene compare specifico messaggio di errore
+- [ ] Quando un utente prova ad accedere a play/GAMEID già terminato deve mostrargli il risultato e dirgli che è scaduto
+
+- [ ] Automatic submit dopo 90 secondi!
+- [ ] Adattare tutti gli oggetti di ritorno delle chiamate a modelli sia server che client
+- [ ] Aggiungere validazione percorso
+- [ ] Fixare timer reference gameId
+- [ ] Randomizzare ordine di visualizzazione segmenti
+
 ## React Client Application Routes
 
 - Route `/`: page content and purpose

@@ -26,7 +26,7 @@ function LoginForm(props) {
 			<h2 className="mb-4">LOGIN</h2>
 			<Form
 				onSubmit={doSubmit}
-				className="p-4 border rounded shadow-sm bg-white"
+				className="p-4 border rounded-4 shadow-lg bg-white"
 			>
 				<Form.Group className="mb-3" controlId="formBasicEmail">
 					<Form.Label>Username</Form.Label>
@@ -47,7 +47,10 @@ function LoginForm(props) {
 					/>
 				</Form.Group>
 
-				<Button type="submit" className="w-100 mb-3 bg-primary text-light">
+				<Button
+					type="submit"
+					className="w-100 mb-3 bg-primary text-light fw-bold"
+				>
 					LOGIN
 				</Button>
 
@@ -78,7 +81,7 @@ function Logout(props) {
 
 	return (
 		<div className="mt-5 text-center">
-			<Spinner animation="grow" variant="primary" />
+			<Spinner animation="grow" variant="secondary" />
 			<p className="mt-2 text-muted">Logging out...</p>
 		</div>
 	);

@@ -45,7 +45,7 @@ function Game(id, userId, username, startStationId, destinationStationId, score,
   this.destinationStationId = destinationStationId;
   this.score = score;
   this.status = status;
-  this.startedAt = dayjs(startedAt);
+  this.startedAt = dayjs(startedAt + 'Z'); // per esplicitare che nel DB usiamo UTC
 }
 
 function StepResult(stationA, stationB, eventDescription, coinEffect, updatedTotal) {

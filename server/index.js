@@ -149,7 +149,6 @@ app.get('/api/ranking', isLoggedIn, async (req, res) => {
     }
     
     res.json(ranking);
-    console.log(ranking);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Server error: ranking not succesfully retrivied." });
@@ -157,6 +156,33 @@ app.get('/api/ranking', isLoggedIn, async (req, res) => {
 });
 
 // --- game
+
+app.get('/api/games/', isLoggedIn, async (req, res) => {
+  try {
+    const network = await getNetwork();
+    
+    // se per qualche motivo il db fosse vuoto
+    if (!network || network.stations.length === 0) {
+      return res.status(404).json({ error: "Underground network map not found or empty." });
+    }
+    
+    res.json(network);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error: network map not succesfully retrivied."});
+  }
+});
+
+// ? POST GET /api/games/:gameId
+app.get("/api/games/:gameId", async (req, res) => {
+  try {
+    const game = await getGame(req.params.gameId, req.user.id);
+    if (game.error) return res.status(403).json(game);
+    setTimeout(()=>res.json(game), 1000);
+  } catch {
+    res.status(500).end();
+  }
+});
 
 // ? POST /api/games
 app.post("/api/games", isLoggedIn, async (req, res) => {
@@ -178,18 +204,19 @@ app.post("/api/games", isLoggedIn, async (req, res) => {
 
     const gameId = await createGame(req.user.id, startStation.id, destStation.id);
 
-    // timeout: se dopo 95 secondi la partita è ancora in playing, l'utente ha abbandonato la partite
+    // timeout: se dopo 100 secondi la partita è ancora in playing, l'utente ha abbandonato la partite
     setTimeout(async () => {
       try {
-        const game = await getGame(gameId);
+        const game = await getGame(gameId, req.user.id
+        );
         if (game && game.status === 'playing') {
           await updateGame(gameId, 0, 'failed');
           console.log(`Game ${gameId} left. Timeout expired.`);
-        }
+        } 
       } catch (err) {
         console.error("Game timeout error", err);
       }
-    }, 95000);
+    }, 100000);
 
     res.status(201).json({
       gameId: gameId,
