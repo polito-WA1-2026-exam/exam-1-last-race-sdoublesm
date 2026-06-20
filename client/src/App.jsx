@@ -1,13 +1,13 @@
 import "./App.css";
 import { useState, useEffect, useContext } from "react";
-import { Button, Container, Spinner, Row, Col } from "react-bootstrap";
+import { Button, Container, Row, Col } from "react-bootstrap";
 import { Outlet, Route, Routes, useNavigate } from "react-router-dom";
-
 import Footer from "./components/Footer.jsx";
 import Header from "./components/Header.jsx";
 import { LoginForm, Logout } from "./components/LoginView.jsx";
 import { PlanningView } from "./components/PlanningView.jsx";
-
+import { ExecutionView } from "./components/ExecutionView.jsx";
+import { LoadingView } from "./components/LoadingView.jsx";
 import UserContext from "./contexts/UserContext.js";
 import { checkSession } from "./api/auth.js";
 import { RankingView } from "./components/RankingView.jsx";
@@ -22,6 +22,7 @@ function App() {
 		name: undefined,
 	});
 	const [authLoading, setAuthLoading] = useState(true);
+	const [gameResult, setGameResult] = useState(null);
 
 	useEffect(() => {
 		checkSession()
@@ -42,13 +43,7 @@ function App() {
 	};
 
 	if (authLoading) {
-		return (
-			// vh-100 imposta l'altezza del contenitore al 100% della viewport height (altezza visibile browser)
-			<Container className="d-flex align-items-center justify-content-center gap-3 vh-100">
-				<Spinner as="span" animation="grow" variant="secondary" />
-				<p className="mt-2 text-muted">Checking session...</p>
-			</Container>
-		);
+		return <LoadingView message="Checking session..." animation="border" />;
 	}
 
 	return (
@@ -59,7 +54,14 @@ function App() {
 						<Route index element={<HomeView />} />
 
 						<Route path="play" element={<SetupView />} />
-						<Route path="/play/:gameId" element={<PlanningView />} />
+						<Route
+							path="/play/:gameId/result"
+							element={<ExecutionView gameResult={gameResult} />}
+						/>
+						<Route
+							path="/play/:gameId"
+							element={<PlanningView setGameResult={setGameResult} />}
+						/>
 
 						<Route path="ranking" element={<RankingView />} />
 						<Route path="login" element={<LoginForm doLogin={doLogin} />} />

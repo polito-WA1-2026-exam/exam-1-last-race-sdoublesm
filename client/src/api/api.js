@@ -81,7 +81,7 @@ export async function submitRoute(gameId, routeArray) {
     try {
         const response = await fetch(`${API_URL}/games/${gameId}/submit`, {
             method: 'POST',
-            body: JSON.stringify({ route: routeArray }),
+            body: JSON.stringify({ segments: routeArray }),
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -90,6 +90,7 @@ export async function submitRoute(gameId, routeArray) {
 
         if (response.ok) {
             const resultData = await response.json();
+            console.log(resultData);
             return resultData; // TODO: restituisce { status, finalScore, journey: [...] } o eventuale fallimento
             // dove journey è un array di StepResult
         } else {

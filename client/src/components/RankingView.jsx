@@ -3,6 +3,7 @@ import { Table, Spinner, Badge } from "react-bootstrap";
 import { getRanking } from "../api/api.js";
 import UserContext from "../contexts/UserContext.js";
 import { Navigate } from "react-router";
+import { LoadingView } from "./LoadingView.jsx";
 
 function RankingView() {
 	const [ranking, setRanking] = useState([]);
@@ -30,12 +31,7 @@ function RankingView() {
 	if (!user.id) return <Navigate to="/login" replace />;
 
 	if (loading) {
-		return (
-			<div className="mt-5 text-center">
-				<Spinner animation="grow" variant="secondary" />
-				<p className="mt-2">Loading ranking...</p>
-			</div>
-		);
+		return <LoadingView message="Loading ranking..." animation="grow" />;
 	}
 
 	return (
@@ -51,9 +47,10 @@ function RankingView() {
 			<Table bordered hover responsive className="text-center">
 				<thead className="table-dark">
 					<tr>
-						<th>Position</th>
-						<th>Username</th>
-						<th>Best Score</th>
+						<th className="col-md-2">Position</th>
+						<th className="col-md-6">Username</th>
+						<th className="col-md-2">Best Score</th>
+						<th className="col-md-2">Total Games</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -75,14 +72,15 @@ function RankingView() {
 									)}
 								</td>
 
-								<td>{player.best_score}</td>
+								<td>{player.bestScore}</td>
+								<td>{player.totalGames}</td>
 							</tr>
 						);
 					})}
 
 					{ranking.length === 0 && (
 						<tr>
-							<td colSpan="3" className="text-center py-4 text-secondary">
+							<td colSpan="4" className="text-center py-4 text-secondary">
 								Ranking not available.
 							</td>
 						</tr>

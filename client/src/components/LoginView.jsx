@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { doLogin, doLogout } from "../api/auth";
 import { useNavigate } from "react-router";
-import { Form, Button, Container, Spinner } from "react-bootstrap";
+import { Form, Button, Container } from "react-bootstrap";
+import { LoadingView } from "./LoadingView.jsx";
 
 function LoginForm(props) {
 	const [username, setUsername] = useState("");
@@ -79,12 +80,7 @@ function Logout(props) {
 			.catch((err) => console.error(err));
 	}, [navigate, props]);
 
-	return (
-		<div className="mt-5 text-center">
-			<Spinner animation="grow" variant="secondary" />
-			<p className="mt-2 text-muted">Logging out...</p>
-		</div>
-	);
+	return <LoadingView message="Logging out..." />;
 }
 
 export { LoginForm, Logout };

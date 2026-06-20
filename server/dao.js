@@ -1,8 +1,8 @@
 import sqlite from "sqlite3";
 import crypto from "crypto";
-import { Station, Line, Segment, Event, Game } from "./models.js";
-import { User } from "../client/src/models.js";
+import { User, Station, Line, Segment, Event, Game } from "./models.js";
 
+ 
 const db = new sqlite.Database("database.sqlite", (err) => {
   if (err) throw err;
 });
@@ -10,8 +10,6 @@ const db = new sqlite.Database("database.sqlite", (err) => {
 // ** USER DAO **
 export const getUser = (username, password) => {
   return new Promise((resolve, reject) => {
-    // calcoliamo il MAX score e il COUNT delle partite completate.
-    // usiamo una LEFT JOIN per prendere anche gli utenti che non hanno ancora giocato
     const sql = `
     SELECT users.*, 
              MAX(games.score) as best_score,
@@ -29,7 +27,8 @@ export const getUser = (username, password) => {
           row.id, 
           row.username, 
           row.best_score || 0, 
-          row.total_games || 0);
+          row.total_games || 0
+        );
         
         crypto.scrypt(password, row.salt, 16, function(err, hashedPassword) {
           if (err) reject(err);
@@ -74,7 +73,6 @@ export const getLineStops = () => {
   });
 };
 
-// network: {stations: [], lines: [], segments: []}
 export const getNetwork = async () => {
   try {
     const [stationsRaw, linesRaw, lineStopsRaw] = await Promise.all([
@@ -120,7 +118,8 @@ export const getNetwork = async () => {
           `${current.stationId}-${next.stationId}-${line.id}`,
           current.stationId, current.stationName,
           next.stationId, next.stationName,
-          line.id, line.name, line.color
+          [{id: line.id, name: line.name, color: line.color}], 
+          line.color
         ));
       }
     }
@@ -137,7 +136,6 @@ export const getNetwork = async () => {
 
 
 // ** GAME DAO **
-
 export const getEvents = () => {
   return new Promise((resolve, reject) => {
     db.all("SELECT * FROM events", [], (err, rows) => {
@@ -190,6 +188,7 @@ export const getRanking = () => {
         users.id, 
         users.username, 
         MAX(games.score) as best_score,
+        COUNT(games.id) as total_games,
         RANK() OVER (ORDER BY MAX(games.score) DESC) as position
       FROM games 
       JOIN users ON games.user_id = users.id 
@@ -200,7 +199,13 @@ export const getRanking = () => {
     
     db.all(sql, [], (err, rows) => {
       if (err) reject(err);
-      else resolve(rows);
+      else {
+        resolve(rows.map(r => {
+          const user = new User(r.id, r.username, r.best_score, r.total_games);
+          user.position = r.position; 
+          return user;
+        }));
+      }
     });
   });
 };

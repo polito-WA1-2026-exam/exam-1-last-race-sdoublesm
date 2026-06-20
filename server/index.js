@@ -23,13 +23,14 @@ const corsOptions = {
 };
 app.use(cors(corsOptions))
 
+// --- authentication
 passport.use(new LocalStrategy(async function verify(username, password, cb) {
   const user = await getUser(username, password);
-  
-  if(!user)
+
+  if (!user)
     //null -> no error, invalid credetials, message
     return cb(null, false, "Incorrect username or password."); // error message in the WWW-Authenticated header of the response
-    
+
   return cb(null, user);
 }));
 
@@ -42,10 +43,10 @@ passport.deserializeUser(function (user, cb) {
 });
 
 const isLoggedIn = (req, res, next) => {
-  if(req.isAuthenticated()) {
+  if (req.isAuthenticated()) {
     return next();
   }
-  return res.status(401).json({error: "Not authorized"});
+  return res.status(401).json({ error: "Not authorized" });
 }
 
 app.use(session({
@@ -55,6 +56,7 @@ app.use(session({
 }));
 app.use(passport.authenticate("session"));
 
+// --- game
 /*
   funzione che implementa BFS (visita in ampiezza grafo) 
   che ritorna la distanza minima in segmenti tra due vertici
@@ -100,16 +102,16 @@ function getMinDistance(startId, destId, segments) {
 // --- authentication
 
 // ? POST /api/sessions
-app.post("/api/sessions", passport.authenticate("local"), function(req, res) {
+app.post("/api/sessions", passport.authenticate("local"), function (req, res) {
   return res.status(201).json(req.user);
 });
 
 // ? GET /api/sessions/current
 app.get("/api/sessions/current", (req, res) => {
-  if(req.isAuthenticated()) {
+  if (req.isAuthenticated()) {
     res.json(req.user);
   } else {
-    res.status(401).json({error: "Not authenticated"});
+    res.status(401).json({ error: "Not authenticated" });
   }
 });
 
@@ -126,16 +128,16 @@ app.delete("/api/sessions/current", (req, res) => {
 app.get('/api/network', isLoggedIn, async (req, res) => {
   try {
     const network = await getNetwork();
-    
+
     // se per qualche motivo il db fosse vuoto
     if (!network || network.stations.length === 0) {
       return res.status(404).json({ error: "Underground network map not found or empty." });
     }
-    
+
     res.json(network);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Server error: network map not succesfully retrivied."});
+    res.status(500).json({ error: "Server error: network map not succesfully retrivied." });
   }
 });
 
@@ -143,11 +145,11 @@ app.get('/api/network', isLoggedIn, async (req, res) => {
 app.get('/api/ranking', isLoggedIn, async (req, res) => {
   try {
     const ranking = await getRanking();
-    
+
     if (!ranking || ranking.length === 0) {
       return res.status(404).json({ error: "Ranking not found or empty." });
     }
-    
+
     res.json(ranking);
   } catch (err) {
     console.error(err);
@@ -156,29 +158,29 @@ app.get('/api/ranking', isLoggedIn, async (req, res) => {
 });
 
 // --- game
-
+// ? GET /api/games/
 app.get('/api/games/', isLoggedIn, async (req, res) => {
   try {
     const network = await getNetwork();
-    
+
     // se per qualche motivo il db fosse vuoto
     if (!network || network.stations.length === 0) {
       return res.status(404).json({ error: "Underground network map not found or empty." });
     }
-    
+
     res.json(network);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Server error: network map not succesfully retrivied."});
+    res.status(500).json({ error: "Server error: network map not succesfully retrivied." });
   }
 });
 
-// ? POST GET /api/games/:gameId
+// ? GET /api/games/:gameId
 app.get("/api/games/:gameId", async (req, res) => {
   try {
     const game = await getGame(req.params.gameId, req.user.id);
     if (game.error) return res.status(403).json(game);
-    setTimeout(()=>res.json(game), 1000);
+    setTimeout(() => res.json(game), 1000);
   } catch {
     res.status(500).end();
   }
@@ -192,7 +194,6 @@ app.post("/api/games", isLoggedIn, async (req, res) => {
     let startStation, destStation;
     let validDistance = false;
 
-    // generazione stazione arrivo e partenza
     while (!validDistance) {
       startStation = stations[Math.floor(Math.random() * stations.length)];
       destStation = stations[Math.floor(Math.random() * stations.length)];
@@ -204,18 +205,11 @@ app.post("/api/games", isLoggedIn, async (req, res) => {
 
     const gameId = await createGame(req.user.id, startStation.id, destStation.id);
 
-    // timeout: se dopo 100 secondi la partita è ancora in playing, l'utente ha abbandonato la partite
     setTimeout(async () => {
       try {
-        const game = await getGame(gameId, req.user.id
-        );
-        if (game && game.status === 'playing') {
-          await updateGame(gameId, 0, 'failed');
-          console.log(`Game ${gameId} left. Timeout expired.`);
-        } 
-      } catch (err) {
-        console.error("Game timeout error", err);
-      }
+        const game = await getGame(gameId, req.user.id);
+        if (game && game.status === "playing") await updateGame(gameId, 0, "failed");
+      } catch (err) { }
     }, 100000);
 
     res.status(201).json({
@@ -224,10 +218,94 @@ app.post("/api/games", isLoggedIn, async (req, res) => {
       destinationStationId: destStation.id,
       startedAt: dayjs().toISOString()
     });
-  } catch (e) { 
-    res.status(503).json({ error: "Error while starting a new game." }); 
+  } catch (e) {
+    res.status(503).json({ error: "Error while starting a new game." });
+  }
+});
+
+// ? POST /api/games/:id/submit
+app.post("/api/games/:id/submit", isLoggedIn, async (req, res) => {
+  const gameId = req.params.id;
+  const userId = req.user.id;
+  const { segments: submittedIds } = req.body;
+
+  try {
+    const game = await getGame(gameId, userId);
+    if (game.error) return res.status(404).json({ error: "Game not found." });
+    if (game.status !== "playing") return res.status(400).json({ error: "Game already closed." });
+
+    const now = dayjs();
+    const elapsed = now.diff(game.startedAt, "second");
+
+    if (elapsed > 93) {
+      await updateGame(gameId, 0, "failed");
+      return res.json({ status: "failed", reason: "Time expired", events: [], finalScore: 0 });
+    }
+
+    const network = await getNetwork();
+    const allSegments = network.segments;
+    const allEvents = await getEvents();
+
+    let currentStation = game.startStationId;
+    const validRouteIds = [currentStation];
+    
+    let finalScore = 20;
+    const events = [];
+
+    for (segId in submittedIds) {
+      // per ogni segmento avrò uno 
+      // StepResult {stationA, stationB, eventDescription, coinEffect, updatedTotal}
+      const currentSegment = allSegments.find(s => s.id === segId); // recupero segmento
+      if (!currentSegment) throw new Error(`Segment ${segId} not exist`);
+
+      let startName, destName, nextStationId;
+
+      // capisco direzione segmento
+      if (currentSegment.stationAId === currentStation) {
+        nextStationId = currentSegment.stationBId;
+        startName = currentSegment.stationAName;
+        destName = currentSegment.stationBName;
+      } else if (currentSegment.stationBId === currentStation) {
+        nextStationId = currentSegment.stationAId;
+        startName = currentSegment.stationBName;
+        destName = currentSegment.stationAName;
+      } else {
+        // break -> percorso non valio
+        await updateGame(gameId, 0, "failed");
+        return res.json({ status: "failed", reason: "Invalid route: segments not connected", events: [], finalScore: 0 });
+      }
+
+      const randomEvent = allEvents[Math.floor(Math.random() * allEvents.length)];
+      finalScore += randomEvent.effect;
+
+      events.push(new StepResult(
+        startName,
+        destName,
+        randomEvent.description,
+        randomEvent.effect,
+        finalScore
+      ));
+
+      currentStation = nextStationId;
+      validRouteIds.push(currentStation);
+    }
+
+    if (currentStation !== game.destinationStationId) {
+      await updateGame(gameId, 0, "failed");
+      return res.json({ status: "failed", reason: "Invalid route: Destination not reached", events: [], finalScore: 0 });
+    }
+
+    if (finalScore < 0) {
+      finalScore = 0;
+    }
+
+    await updateGame(gameId, finalScore, "completed");
+    return res.json({ status: "completed", finalScore, journey: validRouteIds, events });
+
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
 // ! start the server
-app.listen(port, () => {console.log(`API server started at http://localhost:${port}`)});
+app.listen(port, () => { console.log(`API server started at http://localhost:${port}`) });

@@ -15,7 +15,7 @@
   transition: color 0.2s ease-in-out;
 }
 .metro-logo-title:hover {
-  color: var(--metro-red) !important;
+  color: var(--metro-yellow) !important;
 }
 .metro-dot {
   display: inline-block;

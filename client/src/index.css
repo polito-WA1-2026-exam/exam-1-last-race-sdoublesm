@@ -1,27 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&display=swap');
 
 /* sovrascrive colori globali usati da bootstrap */
-:root, [data-bs-theme="light"] {
+:root,
+[data-bs-theme="light"] {
   /* override colori base bootstrap */
   --bs-primary: #000000;
   --bs-primary-rgb: 0, 0, 0;
-  
+
   --bs-secondary: #757575;
   --bs-secondary-rgb: 117, 117, 117;
-  
+
   /* colori relativi alle linee metropolitane */
-  --metro-red:    rgb(229, 57, 53);
+  --metro-red: rgb(229, 57, 53);
   --metro-yellow: rgb(249, 168, 37);
-  --metro-blue:   rgb(21, 101, 192);
-  --metro-green:  rgb(46, 125, 50);
+  --metro-blue: rgb(21, 101, 192);
+  --metro-green: rgb(46, 125, 50);
 
-  --metro-red-light:    #ffdee3;
+  --metro-red-light: #ffdee3;
   --metro-yellow-light: #fffde4;
-  --metro-blue-light:   #d7eeff;
-  --metro-green-light:  #dbffde;
+  --metro-blue-light: #d7eeff;
+  --metro-green-light: #dbffde;
 
-  --metro-border:   #E0E0E0;
-  --metro-text:     #111111;
+  --metro-border: #E0E0E0;
+  --metro-text: #111111;
 }
 
 body {
@@ -31,7 +32,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 700;
 }
 
@@ -41,7 +47,7 @@ h1, h2, h3, h4, h5, h6 {
   --bs-btn-hover-bg: #333333;
   --bs-btn-hover-border-color: #333333;
   --bs-btn-active-bg: #1a1a1a;
-  --bs-btn-disabled-bg: #1a1a1a;
+  --bs-btn-disabled-bg: #343434;
 }
 
 .btn-secondary {

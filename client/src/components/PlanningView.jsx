@@ -4,14 +4,18 @@ import { Row, Col, ListGroup, Badge, Spinner } from "react-bootstrap";
 import { getNetwork, getGame, submitRoute } from "../api/api.js";
 import UserContext from "../contexts/UserContext";
 import dayjs from "dayjs";
+import ErrorView from "./ErrorView.jsx";
+import { LoadingView } from "./LoadingView.jsx";
 
-function PlanningView() {
+function PlanningView(props) {
 	const { gameId } = useParams();
 	const user = useContext(UserContext);
 	const navigate = useNavigate();
 
 	const [gameData, setGameData] = useState(null);
 	const [loadingGame, setLoadingGame] = useState(true);
+
+	const [submitting, setSubmitting] = useState(false);
 
 	const [network, setNetwork] = useState({
 		stations: [],
@@ -91,7 +95,7 @@ function PlanningView() {
 	const isSelected = (id) => selectedSegments.some((s) => s.id === id);
 
 	const toggleSegment = (seg) => {
-		if (timeLeft <= 0) return;
+		if (timeLeft <= 0 || submitting) return;
 
 		if (isSelected(seg.id)) {
 			setSelectedSegments((prev) => prev.filter((s) => s.id !== seg.id));
@@ -101,44 +105,34 @@ function PlanningView() {
 	};
 
 	const handleSubmitRoute = async () => {
-		if (selectedSegments.length === 0) return;
-
-		const routeIds = [selectedSegments[0].stationAId];
-		selectedSegments.forEach((seg) => routeIds.push(seg.stationBId));
+		const segmentIds = selectedSegments.map((seg) => seg.id);
+		setSubmitting(true);
 
 		try {
-			// chiama l'API per submittare il percorso
-			const result = await submitRoute(gameId, routeIds); // TODO !!!!!
-
-			navigate(`/play/${gameData.gameId}`);
-			navigate(`/play/execution`, { state: { result } });
+			const result = await submitRoute(gameId, segmentIds);
+			props.setGameResult(result);
+			navigate(`/play/${gameId}/result`);
 		} catch (error) {
-			console.error("Errore durante la sottomissione:", error);
+			console.error("Errore durante la submission:", error);
+			setSubmitting(false);
 		}
 	};
+
+	useEffect(() => {
+		if (timeLeft === 0 && gameData?.status === "playing" && !submitting) {
+			handleSubmitRoute();
+		}
+	}, [timeLeft, gameData, submitting]);
 
 	const availableSegments = network.segments.filter((s) => !isSelected(s.id));
 
 	if (loadingNetwork || loadingGame) {
-		return (
-			<div className="mt-5 text-center">
-				<Spinner animation="grow" variant="secondary" />
-				<p className="mt-3 text-secondary">Loading map and routes..</p>
-			</div>
-		);
+		return <LoadingView message="Loading map and routes.." animation="grow" />;
 	}
 
 	if (gameData && gameData.status !== "playing") {
 		return (
-			<div className="container p-5 text-center">
-				<div className="bg-dark text-white p-5 rounded-4 shadow-lg border">
-					<i className="bi bi-x-octagon-fill text-danger fs-1"></i>
-					<h2>Mission closed</h2>
-					<p className="text-secondary mb-4 fs-5">
-						Mission already ended or time expired. <br />
-					</p>
-				</div>
-			</div>
+			<ErrorView title={"Mission terminated"} subtitle={"Compl or ended."} />
 		);
 	}
 
@@ -194,10 +188,23 @@ function PlanningView() {
 
 								<button
 									className="btn btn-dark w-100 mt-3 fw-bold py-2 text-uppercase"
-									disabled={timeLeft <= 0 || selectedSegments.length === 0}
+									disabled={selectedSegments.length === 0 || submitting}
 									onClick={handleSubmitRoute}
 								>
-									{timeLeft > 0 ? "CONFIRM ROUTE" : "TIME EXPIRED"}
+									{submitting ? (
+										<>
+											<Spinner
+												as="span" // lo trasforma in uno span (elemento inline) per allineam.
+												animation="grow"
+												size="sm"
+												variant="secondary"
+												className="me-2"
+											/>
+											Submitting...
+										</>
+									) : (
+										"CONFIRM ROUTE"
+									)}
 								</button>
 							</div>
 						)}
@@ -264,14 +271,18 @@ function SegmentItem({ seg, onClick, selected }) {
 			}}
 		>
 			<div className="d-flex fw-bold align-items-center">
+				{" "}
 				<span>{seg.stationAName}</span>
-				<i className="bi bi-arrow-left-right mx-2 text-secondary"></i>
+				<small className="mx-2 text-secondary">
+					<i className="bi bi-arrow-left-right"></i>
+				</small>
 				<span>{seg.stationBName}</span>
 			</div>
+
 			<div className="d-flex align-items-center">
 				<i
-					className={`bi fs-5 ${selected ? "bi-x-circle text-danger" : "bi-plus-circle text-dark"}`}
-				></i>
+					className={`bi ${selected ? "bi-x-circle text-danger" : "bi-plus-circle text-dark"}`}
+				/>
 			</div>
 		</ListGroup.Item>
 	);

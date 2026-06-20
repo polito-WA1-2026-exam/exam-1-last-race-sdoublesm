@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 
-function User(id, username, bestScore, totalGames){
+function User(id, username, bestScore, totalGames) {
   this.id  = id;
   this.username = username;
   this.bestScore = bestScore;
@@ -21,14 +21,14 @@ function Line(id, name, color, stops = []) {
   this.stops = stops; 
 }
 
-function Segment(id, stationAId, stationAName, stationBId, stationBName, lineId, lineName, color) {
+function Segment(id, stationAId, stationAName, stationBId, stationBName, lines = [], color) {
   this.id = id; // id segmento sarà del tipo stazA-stazB-lineId
+  // TODO: rivedere, non ha senso 
   this.stationAId = stationAId;
   this.stationAName = stationAName;
   this.stationBId = stationBId;
   this.stationBName = stationBName;
-  this.lineId = lineId;
-  this.lineName = lineName;
+  this.lines = lines;
   this.color = color;
 }
 
@@ -40,7 +40,7 @@ function Event(id, description, effect) {
 
 function Game(id, userId, username, startStationId, destinationStationId, score, status, startedAt) {
   this.id = id;
-  this.user = { id: userId, username: username };
+  this.user = new User(userId, username);
   this.startStationId = startStationId;
   this.destinationStationId = destinationStationId;
   this.score = score;

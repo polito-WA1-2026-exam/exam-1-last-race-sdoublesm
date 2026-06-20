@@ -8,11 +8,20 @@
 - [ ] !!! Gestire il fatto che quando un utente accede a play/GAMEID che non gli appartiene compare specifico messaggio di errore
 - [ ] Quando un utente prova ad accedere a play/GAMEID già terminato deve mostrargli il risultato e dirgli che è scaduto
 
-- [ ] Automatic submit dopo 90 secondi!
-- [ ] Adattare tutti gli oggetti di ritorno delle chiamate a modelli sia server che client
-- [ ] Aggiungere validazione percorso
+- [ ] Fixare aggiornamento dettagli utente dopo ogni partita!
+- [ ] La partita deve terminare anche quando non ci sono segmenti inseriti
+
+- [ ] Rimuovere colore da segmento!!!!!
+- [ ] Refactor DB di test!
+- [ ] Gestione errori!
+- [ ] Non ha senso tenere l'id del segmento come stazA-stazB-lineID perché c'è il caso in cui per un segmento passano piu linee
 - [ ] Fixare timer reference gameId
 - [ ] Randomizzare ordine di visualizzazione segmenti
+- [ ] Aggiungere validazione backend con express-validator
+
+- [x] Automatic submit dopo 90 secondi!
+- [x] Adattare tutti gli oggetti di ritorno delle chiamate a modelli sia server che client
+- [x] Aggiungere validazione percorso
 
 ## React Client Application Routes
 
