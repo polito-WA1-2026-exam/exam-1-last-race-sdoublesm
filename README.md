@@ -4,24 +4,20 @@
 
 # TODO
 
-- [ ] Gestire tutte le eccezioni ritornate da API
-- [ ] !!! Gestire il fatto che quando un utente accede a play/GAMEID che non gli appartiene compare specifico messaggio di errore
-- [ ] Quando un utente prova ad accedere a play/GAMEID già terminato deve mostrargli il risultato e dirgli che è scaduto
+- [x] Rimuovere colore da segmento!!!!!
+- [x] Refactor DB di test!
+- [x] Non ha senso tenere l'id del segmento come stazA-stazB-lineID perché c'è il caso in cui per un segmento passano piu linee
 
-- [ ] Fixare aggiornamento dettagli utente dopo ogni partita!
-- [ ] La partita deve terminare anche quando non ci sono segmenti inseriti
-
-- [ ] Rimuovere colore da segmento!!!!!
-- [ ] Refactor DB di test!
-- [ ] Gestione errori!
-- [ ] Non ha senso tenere l'id del segmento come stazA-stazB-lineID perché c'è il caso in cui per un segmento passano piu linee
-- [ ] Fixare timer reference gameId
-- [ ] Randomizzare ordine di visualizzazione segmenti
-- [ ] Aggiungere validazione backend con express-validator
-
+- [x] Aggiungere 404 per tutte le route inesistenti
+- [x] Randomizzare ordine di visualizzazione segmenti
 - [x] Automatic submit dopo 90 secondi!
 - [x] Adattare tutti gli oggetti di ritorno delle chiamate a modelli sia server che client
 - [x] Aggiungere validazione percorso
+- [x] La partita deve terminare anche quando non ci sono segmenti inseriti
+- [x] Fixare aggiornamento dettagli utente dopo ogni partita!
+- [X] Gestione errori!
+- [x] Aggiungere validazione backend con express-validator
+- [x] !!! Gestire il fatto che quando un utente accede a play/GAMEID che non gli appartiene compare specifico messaggio di errore
 
 ## React Client Application Routes
 
@@ -73,3 +69,5 @@
 
 Briefly describe whether you used any AI tools (e.g., ChatGPT, GitHub Copilot, Claude) while working on this project, for which purposes (e.g., clarifying concepts, debugging, generating code), and how you verified or adapted their output.
 If you did not use any AI tools, simply state so.
+
+bootstrap classnames, css, generate sentences + error codes messages inside index.js + some mock database entries like the events

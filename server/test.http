@@ -1,44 +1,39 @@
+###
 POST http://localhost:3001/api/sessions
 Content-Type: application/json
 
 {
-  "username": "mirko33",
+  "username": "player1",
   "password": "password123" 
 }
 
 ###
-
 GET http://localhost:3001/api/sessions/current
 
 ###
-
 DELETE http://localhost:3001/api/sessions/current
 
 ###
-
 GET http://localhost:3001/api/network
 
 ###
-
 GET http://localhost:3001/api/ranking
 
 ###
-
 POST http://localhost:3001/api/games
 Content-Type: application/json
 
 {}
 
+### 
+GET http://localhost:3001/api/games/30
+
 ###
-
-GET http://localhost:3001/api/games/48
-
-###
-
-POST http://localhost:3001/api/games/48/submit
+POST http://localhost:3001/api/games/31/submit
 Content-Type: application/json
 
 {
   "segments": [
+    "7-14"
   ]
 }

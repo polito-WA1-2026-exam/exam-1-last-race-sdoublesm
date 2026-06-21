@@ -16,6 +16,7 @@ function PlanningView(props) {
 	const [loadingGame, setLoadingGame] = useState(true);
 
 	const [submitting, setSubmitting] = useState(false);
+	const [hasAutoSubmitted, setHasAutoSubmitted] = useState(false);
 
 	const [network, setNetwork] = useState({
 		stations: [],
@@ -42,6 +43,9 @@ function PlanningView(props) {
 				}
 
 				const networkData = await getNetwork();
+				networkData.segments.sort(() => Math.random() - 0.5); // ordine casuale di visualizzazione
+				// sort riceve una callback di comparazione che deve restituire numero positivo o negativo
+				// se negativo, il primo viene prima, se positivo, il secondo viene prima
 				setNetwork(networkData);
 				setGameData(gameInfo);
 			} catch (e) {
@@ -67,15 +71,17 @@ function PlanningView(props) {
 			return remaining > 0 ? remaining : 0;
 		};
 
-		setTimeout(() => setTimeLeft(calculateRemainingTime()), 0);
+
+		setTimeLeft(calculateRemainingTime());
 
 		const timerId = setInterval(() => {
-			setTimeLeft((prev) => {
-				if (prev <= 1) {
+			setTimeLeft(() => {
+				const remaining = calculateRemainingTime();
+				if (remaining <= 0) {
 					clearInterval(timerId);
 					return 0;
 				}
-				return prev - 1;
+				return remaining;
 			});
 		}, 1000);
 
@@ -105,6 +111,8 @@ function PlanningView(props) {
 	};
 
 	const handleSubmitRoute = async () => {
+		if (submitting) return;
+
 		const segmentIds = selectedSegments.map((seg) => seg.id);
 		setSubmitting(true);
 
@@ -118,11 +126,13 @@ function PlanningView(props) {
 		}
 	};
 
+	// gestisce autosubmit con flag necessario per evitare race conditions
 	useEffect(() => {
-		if (timeLeft === 0 && gameData?.status === "playing" && !submitting) {
+		if (timeLeft === 0 && gameData?.status === "playing" && !submitting && !hasAutoSubmitted) {
+			setHasAutoSubmitted(true);
 			handleSubmitRoute();
 		}
-	}, [timeLeft, gameData, submitting]);
+	}, [timeLeft, gameData, submitting, hasAutoSubmitted]);
 
 	const availableSegments = network.segments.filter((s) => !isSelected(s.id));
 
@@ -132,7 +142,9 @@ function PlanningView(props) {
 
 	if (gameData && gameData.status !== "playing") {
 		return (
-			<ErrorView title={"Mission terminated"} subtitle={"Compl or ended."} />
+			// se la partita è terminata redirect a result
+			// dove ci sara' successiva validazione
+			<Navigate to={`/play/${gameId}/result`} replace />
 		);
 	}
 
@@ -141,7 +153,7 @@ function PlanningView(props) {
 			<Row className="text-start">
 				<Col md={7} className="mb-4">
 					{gameData && (
-						<div className="bg-dark text-center text-white rounded-4 shadow-lg p-3 mb-4">
+						<div className="bg-dark text-center text-white rounded-4 shadow-lg p-3 mb-3">
 							<div className="text-uppercase text-secondary fw-bold">
 								Your Mission
 								<OverlayTrigger
@@ -166,42 +178,60 @@ function PlanningView(props) {
 						</div>
 					)}
 
-
-
 					<img
 						src="/only_stations_map.png"
-						className="img-fluid bg-white rounded-4 p-3 mb-3 shadow-sm"
+						className="img-fluid bg-white rounded-4 p-5 mb-3 shadow-sm"
 					/>
 
-					<div
-						className={`mb-4 p-4 rounded-4 border text-center ${timeLeft <= 10
-							? "bg-metro-red text-light border-danger"
-							: "bg-white text-dark"
-							}`}
-					>
-						<h5
-							className={`mb-1 fw-bold ${timeLeft <= 10 ? "text-light" : "text-dark"}`}
-						>
-							TIME LEFT
-						</h5>
-						<div className={`display-6 fw-bold ${timeLeft <= 10 ? "text-light" : "text-dark"}`}>
-							<i className="bi bi-stopwatch me-3"></i>
-							{timeLeft}s
-						</div>
-						<ProgressBar
-							className="mt-2"
-							variant={timeLeft <= 10 ? "white" : "metro-blue"}
-							now={(timeLeft / 90) * 100}
-							style={{
-								height: "10px",
-								backgroundColor: timeLeft <= 10 ? "var(--metro-red)" : "var(--metro-border)"
-							}}
-						/>
-					</div>
+					<Row>
+
+						<Col md={9} className="mb-3 mb-md-0">
+							<div
+								className={`h-100 p-4 rounded-4 border text-center d-flex gap-1 flex-column justify-content-center ${timeLeft <= 10
+									? "bg-metro-red text-light border-danger"
+									: "bg-white text-dark"
+									}`}
+							>
+								<p
+									className={`mb-1 fw-bold ${timeLeft <= 10 ? "text-light" : "text-secondary"}`}
+								>
+									TIME LEFT
+								</p>
+								<div className={`display-6 fw-bold ${timeLeft <= 10 ? "text-light" : "text-dark"}`}>
+									<i className="bi bi-stopwatch me-3"></i>
+									{timeLeft}s
+								</div>
+								<ProgressBar
+									className="mt-3"
+									variant={timeLeft <= 10 ? "white" : "metro-blue"}
+									now={(timeLeft / 90) * 100}
+									style={{
+										height: "10px",
+										backgroundColor: timeLeft <= 10 ? "var(--metro-red)" : "var(--metro-border)"
+									}}
+								/>
+							</div>
+						</Col>
+
+						<Col>
+							<div className="h-100 bg-white border rounded-4 p-1 text-center d-flex flex-column justify-content-center">
+								<p
+									className="mb-1 fw-bold text-secondary"
+								>
+									YOUR COINS
+								</p>
+								<span className="fs-1 me-1 fw-bold">20<i className="bi bi-coin text-warning ms-2 fs-2"></i></span>
+
+							</div>
+						</Col>
+					</Row>
+
+
+
 				</Col>
 
 				<Col md={5}>
-					<div className="bg-white p-4 border rounded-4 shadow-sm mb-4">
+					<div className="bg-white p-4 border rounded-4 shadow-sm mb-3">
 						<h4 className="mb-3 text-uppercase">Your route</h4>
 
 
@@ -231,7 +261,7 @@ function PlanningView(props) {
 
 						<button
 							className="btn btn-dark w-100 mt-3 fw-bold py-2 text-uppercase"
-							disabled={submitting}
+							disabled={submitting || selectedSegments.length === 0}
 							onClick={handleSubmitRoute}
 						>
 							{submitting ? (
@@ -273,8 +303,8 @@ function PlanningView(props) {
 						</ListGroup>
 					</div>
 				</Col>
-			</Row>
-		</div>
+			</Row >
+		</div >
 	);
 }
 

@@ -105,29 +105,32 @@ export const getNetwork = async () => {
       });
     });
 
-    const segments = [];
+    const segmentsMap = new Map();
     for (const lineId in stopsByLine) {
       const stops = stopsByLine[lineId];
-      const line = linesMap[lineId];
 
       for (let i = 0; i < stops.length - 1; i++) {
         const current = stops[i];
         const next = stops[i + 1];
 
-        segments.push(new Segment(
-          `${current.stationId}-${next.stationId}-${line.id}`,
-          current.stationId, current.stationName,
-          next.stationId, next.stationName,
-          [{ id: line.id, name: line.name, color: line.color }],
-          line.color
-        ));
+        const minId = Math.min(current.stationId, next.stationId);
+        const maxId = Math.max(current.stationId, next.stationId);
+        const segId = `${minId}-${maxId}`;
+
+        if (!segmentsMap.has(segId)) {
+          segmentsMap.set(segId, new Segment(
+            segId,
+            current.stationId, current.stationName,
+            next.stationId, next.stationName
+          ));
+        }
       }
     }
 
     return {
       stations: Object.values(stationsMap),
       lines: Object.values(linesMap),
-      segments: segments
+      segments: Array.from(segmentsMap.values())
     };
   } catch (err) {
     throw err;
@@ -166,7 +169,7 @@ export const getGame = (gameId, userId) => {
       else if (row !== undefined)
         resolve(new Game(row.id, row.user_id, row.username, row.start_station_id, row.destination_station_id, row.score, row.status, row.started_at));
       else
-        resolve({ error: "Game not found." });
+        resolve({ error: "Game not available." });
     });
   });
 };

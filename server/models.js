@@ -21,15 +21,12 @@ function Line(id, name, color, stops = []) {
   this.stops = stops; 
 }
 
-function Segment(id, stationAId, stationAName, stationBId, stationBName, lines = [], color) {
-  this.id = id; // id segmento sarà del tipo stazA-stazB-lineId
-  // TODO: rivedere, non ha senso 
+function Segment(id, stationAId, stationAName, stationBId, stationBName) {
+  this.id = id; // id segmento sarà del tipo stazA-stazB
   this.stationAId = stationAId;
   this.stationAName = stationAName;
   this.stationBId = stationBId;
   this.stationBName = stationBName;
-  this.lines = lines;
-  this.color = color;
 }
 
 function Event(id, description, effect) {

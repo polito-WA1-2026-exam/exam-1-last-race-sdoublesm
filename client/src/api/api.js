@@ -58,47 +58,46 @@ export async function getGame(gameId) {
 }
 
 export async function startGame() {
-    try {
-        const response = await fetch(`${API_URL}/games`, {
-            method: 'POST',
-            credentials: 'include'
-        });
+  try {
+    const response = await fetch(`${API_URL}/games`, {
+      method: 'POST',
+      credentials: 'include'
+    });
 
-        if (response.ok) {
-            const newGameData = await response.json();
-            return newGameData;
-        } else {
-            // 4xx or 5xx status code
-            throw new Error('HTTP error in startGame, code=' + response.status);
-        }
-    } catch (ex) {
-        // handle network errors + parsing errors
-        throw new Error("Network error in startGame", { cause: ex });
+    if (response.ok) {
+      const newGameData = await response.json();
+      return newGameData;
+    } else {
+      // 4xx or 5xx status code
+      throw new Error('HTTP error in startGame, code=' + response.status);
     }
+  } catch (ex) {
+    // handle network errors + parsing errors
+    throw new Error("Network error in startGame", { cause: ex });
+  }
 }
 
 export async function submitRoute(gameId, routeArray) {
-    try {
-        const response = await fetch(`${API_URL}/games/${gameId}/submit`, {
-            method: 'POST',
-            body: JSON.stringify({ segments: routeArray }),
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include'
-        });
+  try {
+    const response = await fetch(`${API_URL}/games/${gameId}/submit`, {
+      method: 'POST',
+      body: JSON.stringify({ segments: routeArray }),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include'
+    });
 
-        if (response.ok) {
-            const resultData = await response.json();
-            console.log(resultData);
-            return resultData; // TODO: restituisce { status, finalScore, journey: [...] } o eventuale fallimento
-            // dove journey è un array di StepResult
-        } else {
-            const errData = await response.json().catch(() => ({})); 
-            throw new Error(errData.error || 'HTTP error in submitRoute, code=' + response.status);
-        }
-    } catch (ex) {
-        throw new Error("Network error in submitRoute", { cause: ex });
+    if (response.ok) {
+      const resultData = await response.json();
+      return resultData; // restituisce { status, finalScore, journey: [...] } o eventuale fallimento
+      // dove journey è un array di StepResult
+    } else {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error || 'HTTP error in submitRoute, code=' + response.status);
     }
+  } catch (ex) {
+    throw new Error("Network error in submitRoute", { cause: ex });
+  }
 }
 

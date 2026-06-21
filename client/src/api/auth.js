@@ -15,7 +15,7 @@ async function doLogin(username, password) {
         const user = await response.json()
         return user
     } else {
-        throw new Error("Login failed")
+        throw new Error("Wrong username or password. Retry.")
     }
 }
 

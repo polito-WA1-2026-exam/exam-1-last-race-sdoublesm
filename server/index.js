@@ -188,7 +188,7 @@ app.get("/api/games/:gameId", isLoggedIn, [
   try {
     const game = await getGame(req.params.gameId, req.user.id);
     if (game.error) return res.status(403).json(game);
-    setTimeout(() => res.json(game), 1000);
+    return res.json(game);
   } catch {
     res.status(500).end();
   }
@@ -218,7 +218,7 @@ app.post("/api/games", isLoggedIn, async (req, res) => {
         const game = await getGame(gameId, req.user.id);
         if (game && game.status === "playing") await updateGame(gameId, 0, "failed");
       } catch (err) { }
-    }, 100000);
+    }, 98000);
 
     res.status(201).json({
       gameId: gameId,
@@ -247,15 +247,22 @@ app.post("/api/games/:id/submit", isLoggedIn, [
 
   try {
     const game = await getGame(gameId, userId);
-    if (game.error) return res.status(404).json({ error: "Game not found." });
+    if (game.error) return res.status(404).json({ error: "Game not available." });
     if (game.status !== "playing") return res.status(400).json({ error: "Game already closed." });
 
     const now = dayjs();
     const elapsed = now.diff(game.startedAt, "second");
 
-    if (elapsed > 93) {
+    if (elapsed > 95) {
       await updateGame(gameId, 0, "failed");
       return res.json({ status: "failed", reason: "Time expired", events: [], finalScore: 0 });
+    }
+
+    // check for duplicate segments in the submitted route
+    const uniqueSegments = new Set(submittedIds);
+    if (uniqueSegments.size !== submittedIds.length) {
+      await updateGame(gameId, 0, "failed");
+      return res.json({ status: "failed", reason: "Invalid route: segment used more than once", events: [], finalScore: 0 });
     }
 
     const network = await getNetwork();
@@ -272,7 +279,10 @@ app.post("/api/games/:id/submit", isLoggedIn, [
       // per ogni segmento avrò uno 
       // StepResult {stationA, stationB, eventDescription, coinEffect, updatedTotal}
       const currentSegment = allSegments.find(s => s.id === segId); // recupero segmento
-      if (!currentSegment) throw new Error(`Segment ${segId} not exist`);
+      if (!currentSegment) {
+        await updateGame(gameId, 0, "failed");
+        return res.json({ status: "failed", reason: `Invalid route: segment ${segId} does not exist`, events: [], finalScore: 0 });
+      }
 
       let startName, destName, nextStationId;
 

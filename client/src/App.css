@@ -1,22 +1,24 @@
-.metro-stripe { 
-  display: flex; 
-  height: 6px; 
+.metro-stripe {
+  display: flex;
+  height: 6px;
 }
 
-.metro-stripe span { 
+.metro-stripe span {
   flex: 1;
 }
 
 .metro-logo-title {
-  font-size: 24px; 
+  font-size: 24px;
   font-weight: bold;
   letter-spacing: 0.2px;
   padding-left: 10px;
   transition: color 0.2s ease-in-out;
 }
+
 .metro-logo-title:hover {
   color: var(--metro-yellow) !important;
 }
+
 .metro-dot {
   display: inline-block;
   width: 10px;

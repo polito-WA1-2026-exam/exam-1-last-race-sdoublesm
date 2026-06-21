@@ -60,13 +60,13 @@ CREATE TABLE games (
 --- populate db
 
 INSERT INTO users (username, hashed_password, salt) VALUES 
-    ('mirko33', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
-    ('luigi_verdi', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
-    ('giulia_neri', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
-    ('alice_villa', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
-    ('mario_rossi', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
-    ('filippo99', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
-    ('sara_bianchi', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974');
+    ('player1', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
+    ('player2', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
+    ('player3', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
+    ('player4', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
+    ('player5', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
+    ('player6', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
+    ('player7', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974');
 
 INSERT INTO lines (name, color) VALUES 
     ('Red Line', 'red'),
@@ -113,13 +113,31 @@ INSERT INTO line_stops (line_id, station_id, stop_number) VALUES
 
 INSERT INTO events (description, effect) VALUES 
     ('Quiet journey', 0),
-    ('Wrong platform', -2),
+    ('Wrong platform', -3),
     ('Kind passenger', 1),
     ('Broken escalator', -1),
-    ('Found a coin', 2),
+    ('Found two coins', 2),
     ('Pickpocket', -4),
     ('Shortcut found', 3),
-    ('Train delayed', -3);
+    ('Train delayed', -3),
+    ('Ticket inspection', -1),
+    ('Perfectly timed connection', 3),
+    ('Seat available during rush hour', 2),
+    ('Missed the connection', -3),
+    ('Lost your ticket', -4),
+    ('Vending machine gave extra snack', 1),
+    ('Stuck behind slow walkers', -1),
+    ('Friendly station guard', 1),
+    ('Suspicious package alert', -4),
+    ('Read a newspaper', 0),
+    ('Found an old metro pass', 2),
+    ('Station closed for maintenance', -4),
+    ('Dropped a coin on tracks', -1),
+    ('Catch the last train', 4),
+    ('Daydreaming', 0),
+    ('Wrong train direction', -3),
+    ('Checking the map', 0),
+    ('Slipped on a wet floor', -2);
 
 INSERT INTO games (user_id, start_station_id, destination_station_id, score, status, started_at) VALUES 
     (1, (SELECT id FROM stations WHERE name='Centrale'), (SELECT id FROM stations WHERE name='Fontana Oscura'), 15, 'completed', '2026-05-29 10:00:00'),
