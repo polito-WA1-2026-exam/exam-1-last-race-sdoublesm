@@ -7,6 +7,7 @@ import LocalStrategy from 'passport-local';
 import session from 'express-session';
 import dayjs from 'dayjs'
 import { getUser, getRanking, getNetwork, getEvents, createGame, getGame, updateGame } from "./dao.js";
+import { StepResult } from "./models.js";
 
 // init
 const app = express();
@@ -176,7 +177,14 @@ app.get('/api/games/', isLoggedIn, async (req, res) => {
 });
 
 // ? GET /api/games/:gameId
-app.get("/api/games/:gameId", async (req, res) => {
+app.get("/api/games/:gameId", isLoggedIn, [
+  check("gameId").isInt()
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
+  }
+
   try {
     const game = await getGame(req.params.gameId, req.user.id);
     if (game.error) return res.status(403).json(game);
@@ -224,7 +232,15 @@ app.post("/api/games", isLoggedIn, async (req, res) => {
 });
 
 // ? POST /api/games/:id/submit
-app.post("/api/games/:id/submit", isLoggedIn, async (req, res) => {
+app.post("/api/games/:id/submit", isLoggedIn, [
+  check("id").isInt(),
+  check("segments").isArray()
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ errors: errors.array() });
+  }
+
   const gameId = req.params.id;
   const userId = req.user.id;
   const { segments: submittedIds } = req.body;
@@ -248,11 +264,11 @@ app.post("/api/games/:id/submit", isLoggedIn, async (req, res) => {
 
     let currentStation = game.startStationId;
     const validRouteIds = [currentStation];
-    
+
     let finalScore = 20;
     const events = [];
 
-    for (segId in submittedIds) {
+    for (const segId of submittedIds) {
       // per ogni segmento avrò uno 
       // StepResult {stationA, stationB, eventDescription, coinEffect, updatedTotal}
       const currentSegment = allSegments.find(s => s.id === segId); // recupero segmento

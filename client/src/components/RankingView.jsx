@@ -17,6 +17,8 @@ function RankingView() {
 			try {
 				setLoading(true);
 				const data = await getRanking();
+				// returns an array of [.., { id, username, bestScore, totalGames}] 
+
 				setRanking(data || []);
 			} catch (error) {
 				console.error("Error while loading ranking", error);

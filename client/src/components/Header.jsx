@@ -7,16 +7,17 @@ function UserInfo({ user }) {
 		<div className="d-flex align-items-center gap-3 border rounded-4 px-3 py-2 bg-white shadow-sm">
 			<span className="badge border text-dark"></span>
 
-			<span className="d-flex badge border text-dark gap-2">
-				<i className="bi bi-controller text-black"></i>
-				{user.totalGames}
-				<i className="bi bi-trophy-fill text-warning"></i>
-				{user.bestScore}
-			</span>
+			{/*
+				<span className="d-flex badge border text-dark gap-2">
+					<i className="bi bi-controller text-black"></i>
+					{user.totalGames}
+					<i className="bi bi-trophy-fill text-warning"></i>
+					{user.bestScore}
+				</span>
+			*/}
 
-			<span className="fw-bold">
-				{" "}
-				<i class="bi bi-person me-1"></i>
+			<span className="d-flex align-items-center fw-bold gap-1">
+				<i className="bi bi-person me-2"></i>
 				{user.username}
 			</span>
 

@@ -61,9 +61,12 @@ CREATE TABLE games (
 
 INSERT INTO users (username, hashed_password, salt) VALUES 
     ('mirko33', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
-    ('donPepp', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
-    ('riky77', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
-    ('alice_villa_06', 'c3d4e5f67890a1b2c3d4e5f67890a1b2', '43c180fcc4008974');
+    ('luigi_verdi', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
+    ('giulia_neri', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
+    ('alice_villa', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
+    ('mario_rossi', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
+    ('filippo99', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974'),
+    ('sara_bianchi', '690adf3f82a98b1697b6318ea633acc0', '43c180fcc4008974');
 
 INSERT INTO lines (name, color) VALUES 
     ('Red Line', 'red'),
@@ -121,4 +124,11 @@ INSERT INTO events (description, effect) VALUES
 INSERT INTO games (user_id, start_station_id, destination_station_id, score, status, started_at) VALUES 
     (1, (SELECT id FROM stations WHERE name='Centrale'), (SELECT id FROM stations WHERE name='Fontana Oscura'), 15, 'completed', '2026-05-29 10:00:00'),
     (1, (SELECT id FROM stations WHERE name='Giardini del Confine'), (SELECT id FROM stations WHERE name='Bertola'), 22, 'completed', '2026-05-28 15:30:00'),
-    (2, (SELECT id FROM stations WHERE name='Belvedere'), (SELECT id FROM stations WHERE name='Darsena'), 8, 'completed', '2026-05-30 14:00:00');
+    (2, (SELECT id FROM stations WHERE name='Belvedere'), (SELECT id FROM stations WHERE name='Darsena'), 8, 'completed', '2026-05-30 14:00:00'),
+    (2, (SELECT id FROM stations WHERE name='Fornace'), (SELECT id FROM stations WHERE name='Dogana Vecchia'), 12, 'completed', '2026-06-01 09:15:00'),
+    (3, (SELECT id FROM stations WHERE name='Centrale'), (SELECT id FROM stations WHERE name='Arsenale'), 28, 'completed', '2026-06-05 11:45:00'),
+    (4, (SELECT id FROM stations WHERE name='Porta Velaria'), (SELECT id FROM stations WHERE name='Piazza delle Lanterne'), 5, 'failed', '2026-06-10 18:20:00'),
+    (5, (SELECT id FROM stations WHERE name='Cavalcavia'), (SELECT id FROM stations WHERE name='Crocetta'), 19, 'completed', '2026-06-12 08:30:00'),
+    (1, (SELECT id FROM stations WHERE name='Castello di Nebbia'), (SELECT id FROM stations WHERE name='Belvedere'), 0, 'failed', '2026-06-15 16:40:00'),
+    (6, (SELECT id FROM stations WHERE name='Bertola'), (SELECT id FROM stations WHERE name='Darsena'), 25, 'completed', '2026-06-18 13:10:00'),
+    (7, (SELECT id FROM stations WHERE name='Dogana Vecchia'), (SELECT id FROM stations WHERE name='Fontana Oscura'), 14, 'completed', '2026-06-19 20:00:00');

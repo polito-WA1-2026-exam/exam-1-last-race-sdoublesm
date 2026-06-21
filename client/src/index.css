@@ -57,3 +57,19 @@ h6 {
   --bs-btn-hover-border-color: #5c5c5c;
   --bs-btn-active-bg: #4d4d4d;
 }
+
+.bg-metro-yellow {
+  background-color: var(--metro-yellow) !important;
+}
+
+.bg-metro-red {
+  background-color: var(--metro-red) !important;
+}
+
+.bg-metro-blue {
+  background-color: var(--metro-blue) !important;
+}
+
+.bg-metro-green {
+  background-color: var(--metro-green) !important;
+}

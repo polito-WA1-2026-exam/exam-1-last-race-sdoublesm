@@ -34,6 +34,7 @@ function LoginForm(props) {
 					<Form.Control
 						placeholder="Enter username"
 						value={username}
+						autoComplete="username"
 						onChange={(ev) => setUsername(ev.target.value)}
 					/>
 				</Form.Group>
@@ -44,6 +45,7 @@ function LoginForm(props) {
 						type="password"
 						placeholder="Password"
 						value={password}
+						autoComplete="current-password"
 						onChange={(ev) => setPassword(ev.target.value)}
 					/>
 				</Form.Group>

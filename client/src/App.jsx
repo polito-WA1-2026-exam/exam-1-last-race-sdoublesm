@@ -6,6 +6,7 @@ import Footer from "./components/Footer.jsx";
 import Header from "./components/Header.jsx";
 import { LoginForm, Logout } from "./components/LoginView.jsx";
 import { PlanningView } from "./components/PlanningView.jsx";
+import ErrorView from "./components/ErrorView.jsx";
 import { ExecutionView } from "./components/ExecutionView.jsx";
 import { LoadingView } from "./components/LoadingView.jsx";
 import UserContext from "./contexts/UserContext.js";
@@ -28,7 +29,6 @@ function App() {
 		checkSession()
 			.then((result) => {
 				if (result) {
-					console.log("current_user: ", result);
 					setUser(result);
 				}
 			})
@@ -68,7 +68,7 @@ function App() {
 						<Route path="logout" element={<Logout doLogin={doLogin} />} />
 						<Route
 							path="error"
-							element={<h1 className="mt-5 text-danger text-center">[!]</h1>}
+							element={<ErrorView />}
 						/>
 					</Route>
 				</Routes>
@@ -90,8 +90,8 @@ function MainLayout(props) {
 function Rules() {
 	return (
 		<div className="bg-white rounded-4 shadow mt-2 p-5">
-			<h1 className="mb-4 fw-bold text-center">Rules: How to play?</h1>
-			<p className="text-center mb-0 fs-5 mb">
+			<h1 className="mb-1 fw-bold text-center">Rules: How to play?</h1>
+			<p className="text-center text-secondary mb-0 fs-5 mb-4">
 				Mind the gap. Make the connection. Survive the rails.
 			</p>
 

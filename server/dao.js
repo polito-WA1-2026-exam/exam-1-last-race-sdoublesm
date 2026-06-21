@@ -2,7 +2,7 @@ import sqlite from "sqlite3";
 import crypto from "crypto";
 import { User, Station, Line, Segment, Event, Game } from "./models.js";
 
- 
+
 const db = new sqlite.Database("database.sqlite", (err) => {
   if (err) throw err;
 });
@@ -18,21 +18,21 @@ export const getUser = (username, password) => {
       LEFT JOIN games ON users.id = games.user_id AND games.status = 'completed'
       WHERE users.username = ?
       GROUP BY users.id`;
-    
+
     db.get(sql, [username], (err, row) => {
-      if (err) reject(err); 
-      else if (row === undefined) resolve(false); 
+      if (err) reject(err);
+      else if (row === undefined) resolve(false);
       else {
         const user = new User(
-          row.id, 
-          row.username, 
-          row.best_score || 0, 
+          row.id,
+          row.username,
+          row.best_score || 0,
           row.total_games || 0
         );
-        
-        crypto.scrypt(password, row.salt, 16, function(err, hashedPassword) {
+
+        crypto.scrypt(password, row.salt, 16, function (err, hashedPassword) {
           if (err) reject(err);
-          if(!crypto.timingSafeEqual(Buffer.from(row.hashed_password, "hex"), hashedPassword))
+          if (!crypto.timingSafeEqual(Buffer.from(row.hashed_password, "hex"), hashedPassword))
             resolve(false);
           else
             resolve(user);
@@ -87,7 +87,7 @@ export const getNetwork = async () => {
     linesRaw.forEach(l => linesMap[l.id] = new Line(l.id, l.name, l.color, []));
 
     const stopsByLine = {};
-    
+
     lineStopsRaw.forEach(stop => {
       const line = linesMap[stop.line_id];
       const station = stationsMap[stop.station_id];
@@ -109,16 +109,16 @@ export const getNetwork = async () => {
     for (const lineId in stopsByLine) {
       const stops = stopsByLine[lineId];
       const line = linesMap[lineId];
-      
+
       for (let i = 0; i < stops.length - 1; i++) {
         const current = stops[i];
         const next = stops[i + 1];
-        
+
         segments.push(new Segment(
           `${current.stationId}-${next.stationId}-${line.id}`,
           current.stationId, current.stationName,
           next.stationId, next.stationName,
-          [{id: line.id, name: line.name, color: line.color}], 
+          [{ id: line.id, name: line.name, color: line.color }],
           line.color
         ));
       }
@@ -148,7 +148,7 @@ export const getEvents = () => {
 export const createGame = (userId, startStationId, destinationStationId) => {
   return new Promise((resolve, reject) => {
     const sql = "INSERT INTO games(user_id, start_station_id, destination_station_id, score, status) VALUES (?, ?, ?, 20, 'playing')";
-    db.run(sql, [userId, startStationId, destinationStationId], function(err) {
+    db.run(sql, [userId, startStationId, destinationStationId], function (err) {
       if (err) reject(err);
       else resolve(this.lastID);
     });
@@ -174,7 +174,7 @@ export const getGame = (gameId, userId) => {
 export const updateGame = (gameId, finalScore, finalStatus) => {
   return new Promise((resolve, reject) => {
     const sql = "UPDATE games SET score = ?, status = ? WHERE id = ?";
-    db.run(sql, [finalScore, finalStatus, gameId], function(err) {
+    db.run(sql, [finalScore, finalStatus, gameId], function (err) {
       if (err) reject(err);
       else resolve(this.changes);
     });
@@ -192,17 +192,17 @@ export const getRanking = () => {
         RANK() OVER (ORDER BY MAX(games.score) DESC) as position
       FROM games 
       JOIN users ON games.user_id = users.id 
-      WHERE games.status = 'completed' 
+      WHERE games.status != 'playing' 
       GROUP BY users.id 
       ORDER BY best_score DESC
     `;
-    
+
     db.all(sql, [], (err, rows) => {
       if (err) reject(err);
       else {
         resolve(rows.map(r => {
           const user = new User(r.id, r.username, r.best_score, r.total_games);
-          user.position = r.position; 
+          user.position = r.position;
           return user;
         }));
       }

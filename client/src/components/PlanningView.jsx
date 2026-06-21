@@ -1,6 +1,6 @@
 import { useState, useContext, useEffect } from "react";
 import { useNavigate, Navigate, useParams } from "react-router-dom";
-import { Row, Col, ListGroup, Badge, Spinner } from "react-bootstrap";
+import { Row, Col, ListGroup, Badge, Spinner, OverlayTrigger, Tooltip, ProgressBar } from "react-bootstrap";
 import { getNetwork, getGame, submitRoute } from "../api/api.js";
 import UserContext from "../contexts/UserContext";
 import dayjs from "dayjs";
@@ -37,7 +37,7 @@ function PlanningView(props) {
 				const gameInfo = await getGame(gameId);
 
 				if (gameInfo.error) {
-					navigate("/error", { state: { msg: gameInfo.error } });
+					navigate("/error");
 					return;
 				}
 
@@ -139,99 +139,120 @@ function PlanningView(props) {
 	return (
 		<div className="text-center p-4">
 			<Row className="text-start">
-				<Col md={8} className="mb-4">
+				<Col md={7} className="mb-4">
 					{gameData && (
 						<div className="bg-dark text-center text-white rounded-4 shadow-lg p-3 mb-4">
 							<div className="text-uppercase text-secondary fw-bold">
 								Your Mission
+								<OverlayTrigger
+									placement="right"
+									overlay={
+										<Tooltip>
+											<strong>Phase 2: Planning</strong>
+											<br />
+											Select segments on the map to build the correct route before time runs out!
+										</Tooltip>
+									}
+								>
+									<i className="bi bi-info-circle ms-2"></i>
+								</OverlayTrigger>
 							</div>
 
 							<div className="fs-4 fw-bold">
-								<span>{startStationName}</span>
+								<span style={{ color: "var(--metro-yellow)" }}>{startStationName}</span>
 								<i className="bi bi-arrow-right mx-3"></i>
-								<span>{destStationName}</span>
+								<span style={{ color: "var(--metro-yellow)" }}>{destStationName}</span>
 							</div>
 						</div>
 					)}
-					<div>
-						<img
-							src="/complete_map.png"
-							className="img-fluid rounded-4 border mb-3 shadow-sm "
-						/>
 
-						{selectedSegments.length > 0 && (
-							<div className="bg-white p-4 border rounded-4 shadow-sm">
-								<h4 className="mb-1">Your route</h4>
-								<p className="text-muted small mb-3">
-									Click on a segment to remove it.
-								</p>
 
-								<ListGroup variant="flush">
-									{selectedSegments.map((seg, index) => (
-										<div
-											key={seg.id}
-											className="d-flex align-items-center mb-2"
-										>
-											<Badge bg="dark" pill className="me-2">
-												{index + 1}
-											</Badge>
-											<div className="flex-grow-1">
-												<SegmentItem
-													seg={seg}
-													onClick={() => toggleSegment(seg)}
-													selected={true}
-												/>
-											</div>
-										</div>
-									))}
-								</ListGroup>
 
-								<button
-									className="btn btn-dark w-100 mt-3 fw-bold py-2 text-uppercase"
-									disabled={selectedSegments.length === 0 || submitting}
-									onClick={handleSubmitRoute}
-								>
-									{submitting ? (
-										<>
-											<Spinner
-												as="span" // lo trasforma in uno span (elemento inline) per allineam.
-												animation="grow"
-												size="sm"
-												variant="secondary"
-												className="me-2"
-											/>
-											Submitting...
-										</>
-									) : (
-										"CONFIRM ROUTE"
-									)}
-								</button>
-							</div>
-						)}
-					</div>
-				</Col>
+					<img
+						src="/only_stations_map.png"
+						className="img-fluid bg-white rounded-4 p-3 mb-3 shadow-sm"
+					/>
 
-				<Col md={4}>
 					<div
-						className={`mb-4 p-4 rounded-4 border text-center ${
-							timeLeft <= 10
-								? "bg-danger text-white border-danger"
-								: "bg-white text-dark"
-						}`}
+						className={`mb-4 p-4 rounded-4 border text-center ${timeLeft <= 10
+							? "bg-metro-red text-light border-danger"
+							: "bg-white text-dark"
+							}`}
 					>
 						<h5
-							className={`mb-1 ${timeLeft <= 10 ? "text-white" : "text-muted"}`}
+							className={`mb-1 fw-bold ${timeLeft <= 10 ? "text-light" : "text-dark"}`}
 						>
 							TIME LEFT
 						</h5>
-						<div className="display-6 fw-bold">
+						<div className={`display-6 fw-bold ${timeLeft <= 10 ? "text-light" : "text-dark"}`}>
 							<i className="bi bi-stopwatch me-3"></i>
 							{timeLeft}s
 						</div>
+						<ProgressBar
+							className="mt-2"
+							variant={timeLeft <= 10 ? "white" : "metro-blue"}
+							now={(timeLeft / 90) * 100}
+							style={{
+								height: "10px",
+								backgroundColor: timeLeft <= 10 ? "var(--metro-red)" : "var(--metro-border)"
+							}}
+						/>
+					</div>
+				</Col>
+
+				<Col md={5}>
+					<div className="bg-white p-4 border rounded-4 shadow-sm mb-4">
+						<h4 className="mb-3 text-uppercase">Your route</h4>
+
+
+						{selectedSegments.length === 0 ? (
+							<p className="text-center text-secondary my-4">No segments selected yet.</p>
+						) : (
+							<ListGroup>
+								{selectedSegments.map((seg, index) => (
+									<div
+										key={seg.id}
+										className="d-flex align-items-center"
+									>
+										<Badge className="bg-metro-green rounded-pill me-2">
+											{index + 1}
+										</Badge>
+										<div className="flex-grow-1">
+											<SegmentItem
+												seg={seg}
+												onClick={() => toggleSegment(seg)}
+												selected={true}
+											/>
+										</div>
+									</div>
+								))}
+							</ListGroup>
+						)}
+
+						<button
+							className="btn btn-dark w-100 mt-3 fw-bold py-2 text-uppercase"
+							disabled={submitting}
+							onClick={handleSubmitRoute}
+						>
+							{submitting ? (
+								<>
+									<Spinner
+										as="span"
+										animation="grow"
+										size="sm"
+										variant="secondary"
+										className="me-2"
+									/>
+									Submitting...
+								</>
+							) : (
+								"CONFIRM ROUTE"
+							)}
+						</button>
 					</div>
 
-					<div className="bg-white p-3 border rounded-4 shadow-sm">
-						<h4 className="mb-1">Segments</h4>
+					<div className="bg-white p-4 border rounded-4 shadow-sm">
+						<h4 className="mb-1 text-uppercase">Segments</h4>
 						<p className="text-muted small mb-3">
 							Select the segments in sequence to build your route.
 						</p>
@@ -240,7 +261,7 @@ function PlanningView(props) {
 							<p className="text-muted">All segments selected.</p>
 						)}
 
-						<ListGroup>
+						<ListGroup className="pe-2" style={{ maxHeight: '500px', overflowY: 'auto' }}>
 							{availableSegments.map((seg) => (
 								<SegmentItem
 									key={seg.id}
@@ -264,26 +285,15 @@ function SegmentItem({ seg, onClick, selected }) {
 		<ListGroup.Item
 			action
 			onClick={onClick}
-			className="d-flex text-dark justify-content-between align-items-center mb-2 rounded-4"
-			style={{
-				border: `2.5px solid var(--metro-border)`,
-				// borderLeft: `10px solid var(--metro-${colorName})`,
-			}}
+			className="d-flex justify-content-between align-items-center mb-2 rounded-4"
+			style={{ border: `2px solid var(--metro-border)` }}
 		>
-			<div className="d-flex fw-bold align-items-center">
-				{" "}
+			<div className="fw-bold d-flex align-items-center gap-3">
 				<span>{seg.stationAName}</span>
-				<small className="mx-2 text-secondary">
-					<i className="bi bi-arrow-left-right"></i>
-				</small>
+				<i className="bi bi-arrow-left-right text-secondary"></i>
 				<span>{seg.stationBName}</span>
 			</div>
-
-			<div className="d-flex align-items-center">
-				<i
-					className={`bi ${selected ? "bi-x-circle text-danger" : "bi-plus-circle text-dark"}`}
-				/>
-			</div>
+			<i className={`bi ${selected ? "bi-x-circle text-danger" : "bi-plus-circle text-dark"} fs-4`} />
 		</ListGroup.Item>
 	);
 }
