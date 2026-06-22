@@ -307,6 +307,9 @@ app.post("/api/games/:gameId/submit", isLoggedIn, [
 
       const randomEvent = allEvents[Math.floor(Math.random() * allEvents.length)];
       finalScore += randomEvent.effect;
+      if (finalScore < 0) {
+        finalScore = 0;
+      }
 
       journey.push(new StepResult(
         startName,
@@ -325,9 +328,6 @@ app.post("/api/games/:gameId/submit", isLoggedIn, [
       return res.json({ status: "failed", reason: "Invalid route: Destination not reached", journey: [], finalScore: 0 });
     }
 
-    if (finalScore < 0) {
-      finalScore = 0;
-    }
 
     await updateGame(gameId, finalScore, "completed");
     return res.json({ status: "completed", finalScore, journey });

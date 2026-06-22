@@ -3,45 +3,35 @@
 
 ## Database Tables
 
-### Table `users`
+### - Table `users`
 Contains: `id`, `username`, `hashed_password`, `salt`
 
 Stores the registered users' credentials and information. 
 
-
-
-### Table `stations`
+### - Table `stations`
 Contains: `id`, `name`
 
 Stores the available stations in the network.
 
-
-### Table `lines`
+### - Table `lines`
 Contains: `id`, `name`, `color`
 
 Stores the metro lines. 
 
-
-### Table `line_stops`
+### - Table `line_stops`
 Contains: `id`, `line_id`, `station_id`, `stop_number` (the index of the station in the line)
 
 Maps the sequence of stations for each line. 
 
-
-
-### Table `events`
+### - Table `events`
 Contains: `id`, `description`, `effect`
 
 Stores the random events that can occur during the game, with their coin effects. 
 
-
-
-### Table `games`
+### - Table `games`
 Contains: `id`, `user_id`, `start_station_id`, `destination_station_id`, `score`, `status`, `started_at`
 
 Stores the history and status of all games played by the users. 
-
-
 
 ## Data Models
 
@@ -224,7 +214,7 @@ function StepResult(stationA, stationB, eventDescription, coinEffect, updatedTot
 - Request parameters: `gameId` (integer)
 - Request body: `{ "segments": ["5-2", "2-8", ...] }`
 - Auth: user identified via passport session
-- Response body (Success):
+- Response body (success):
 ```json
 {
   "status": "completed",
@@ -236,8 +226,18 @@ function StepResult(stationA, stationB, eventDescription, coinEffect, updatedTot
       "eventDescription": "Quiet journey",
       "coinEffect": 0,
       "updatedTotal": 20
-    }
+    },
+    ...
   ]
+}
+```
+- Response body (failure):
+```json
+{
+  "status": "failed",
+  "reason": "Invalid route: segment used more than once",
+  "journey": [],
+  "finalScore": 0
 }
 ```
 - Status codes: `200 OK`, `400 Bad Request`, `401 Unauthorized`, `404 Not Found`, `422 Unprocessable Entity`, `500 Internal Server Error`
@@ -265,8 +265,11 @@ function StepResult(stationA, stationB, eventDescription, coinEffect, updatedTot
 
 ## Screenshots
 
-![General Ranking Page](./img/ranking.jpg)
-![During a Game](./img/game.jpg)
+### General Ranking Page
+![General Ranking Page](./img/ranking.png)
+
+### During a Game
+![During a Game](./img/game.png)
 
 ## Users Credentials
 
@@ -277,4 +280,4 @@ function StepResult(stationA, stationB, eventDescription, coinEffect, updatedTot
 
 ## Use of AI Tools
 
-I mainly used Google Gemini to ask for clarifications about React-Bootstrap classes, CSS and styling in general, to generate sentences to put in the game pages, some entries in the database like the events (plus the script `seed.js`), and to get help refining SQL queries inside the DAO. I also used it for implementing side functions such as the randomization of segments and to generate backend error codes and related messages.
+I mainly used Google Gemini to ask for clarifications about React-Bootstrap classes, CSS and styling in general, to generate sentences to put in the game pages, some entries in the database like the events (plus the script `seed.js`), and to get help refining SQL queries inside the DAO. I also used it for implementing side functions such as the randomization of segments list and to generate backend error codes and related messages.
