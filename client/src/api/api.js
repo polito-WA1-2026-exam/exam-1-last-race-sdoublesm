@@ -100,4 +100,3 @@ export async function submitRoute(gameId, routeArray) {
     throw new Error("Network error in submitRoute", { cause: ex });
   }
 }
-

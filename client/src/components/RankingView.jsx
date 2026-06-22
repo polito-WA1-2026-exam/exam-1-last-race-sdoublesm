@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { Table, Spinner, Badge } from "react-bootstrap";
 import { getRanking } from "../api/api.js";
 import UserContext from "../contexts/UserContext.js";
-import { Navigate } from "react-router";
+import { useNavigate } from "react-router";
 import { LoadingView } from "./LoadingView.jsx";
 
 function RankingView() {
@@ -10,27 +10,27 @@ function RankingView() {
 	const [loading, setLoading] = useState(true);
 
 	const user = useContext(UserContext);
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		async function fetchRanking() {
-			if (!user.id) return;
+			if (!user?.id) return;
 			try {
 				setLoading(true);
 				const data = await getRanking();
 				// returns an array of [.., { id, username, bestScore, totalGames}] 
-
-				setRanking(data || []);
+				setRanking(data);
 			} catch (error) {
-				console.error("Error while loading ranking", error);
+				navigate("/error");
 			} finally {
 				setLoading(false);
 			}
 		}
 
 		fetchRanking();
-	}, [user.id]);
+	}, [user?.id]);
 
-	if (!user.id) return <Navigate to="/login" replace />;
+	if (!user?.id) return <Navigate to="/login" replace />;
 
 	if (loading) {
 		return <LoadingView message="Loading ranking..." animation="grow" />;

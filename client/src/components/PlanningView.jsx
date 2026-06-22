@@ -20,7 +20,6 @@ function PlanningView(props) {
 
 	const [network, setNetwork] = useState({
 		stations: [],
-		lines: [],
 		segments: [],
 	});
 	const [loadingNetwork, setLoadingNetwork] = useState(true);
@@ -30,7 +29,7 @@ function PlanningView(props) {
 
 	useEffect(() => {
 		async function fetchData() {
-			if (!user.id || !gameId) return;
+			if (!user?.id || !gameId) return;
 			try {
 				setLoadingNetwork(true);
 				setLoadingGame(true);
@@ -43,10 +42,12 @@ function PlanningView(props) {
 				}
 
 				const networkData = await getNetwork();
-				networkData.segments.sort(() => Math.random() - 0.5); // ordine casuale di visualizzazione
-				// sort riceve una callback di comparazione che deve restituire numero positivo o negativo
-				// se negativo, il primo viene prima, se positivo, il secondo viene prima
-				setNetwork(networkData);
+				if (networkData && networkData.segments) {
+					networkData.segments.sort(() => Math.random() - 0.5); // ordine casuale di visualizzazione
+					// sort riceve una callback di comparazione che deve restituire numero positivo o negativo
+					// se negativo, il primo viene prima, se positivo, il secondo viene prima
+					setNetwork(networkData);
+				}
 				setGameData(gameInfo);
 			} catch (e) {
 				navigate("/error");
@@ -56,10 +57,10 @@ function PlanningView(props) {
 			}
 		}
 		fetchData();
-	}, [user.id, gameId, navigate]);
+	}, [user?.id, gameId, navigate]);
 
 	useEffect(() => {
-		if (!user.id || !gameData) return;
+		if (!user?.id || !gameData) return;
 
 		// ! calcoliamo tempo rimanente rispetto a db
 		// utile se la pagina viene ricaricata
@@ -86,17 +87,17 @@ function PlanningView(props) {
 		}, 1000);
 
 		return () => clearInterval(timerId);
-	}, [user.id, gameData]);
+	}, [user?.id, gameData]);
 
 	const startStationName =
-		network.stations.find((s) => s.id === gameData?.startStationId)?.name ||
+		network?.stations?.find((s) => s.id === gameData?.startStationId)?.name ||
 		"None";
 
 	const destStationName =
-		network.stations.find((s) => s.id === gameData?.destinationStationId)
+		network?.stations?.find((s) => s.id === gameData?.destinationStationId)
 			?.name || "None";
 
-	if (!user.id) return <Navigate to="/login" replace />;
+	if (!user?.id) return <Navigate to="/login" replace />;
 
 	const isSelected = (id) => selectedSegments.some((s) => s.id === id);
 
@@ -134,7 +135,7 @@ function PlanningView(props) {
 		}
 	}, [timeLeft, gameData, submitting, hasAutoSubmitted]);
 
-	const availableSegments = network.segments.filter((s) => !isSelected(s.id));
+	const availableSegments = network?.segments?.filter((s) => !isSelected(s.id)) || [];
 
 	if (loadingNetwork || loadingGame) {
 		return <LoadingView message="Loading map and routes.." animation="grow" />;

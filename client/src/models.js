@@ -1,10 +1,8 @@
 import dayjs from "dayjs";
 
-function User(id, username, bestScore, totalGames){
+function User(id, username){
   this.id  = id;
   this.username = username;
-  this.bestScore = bestScore;
-  this.totalGames = totalGames;
 }
 
 function Station(id, name, lines = [], isInterchange = false) {
@@ -21,15 +19,12 @@ function Line(id, name, color, stops = []) {
   this.stops = stops; 
 }
 
-function Segment(id, stationAId, stationAName, stationBId, stationBName, lineId, lineName, color) {
+function Segment(id, stationAId, stationAName, stationBId, stationBName) {
   this.id = id; 
   this.stationAId = stationAId;
   this.stationAName = stationAName;
   this.stationBId = stationBId;
   this.stationBName = stationBName;
-  this.lineId = lineId;
-  this.lineName = lineName;
-  this.color = color;
 }
 
 function Event(id, description, effect) {
@@ -40,7 +35,7 @@ function Event(id, description, effect) {
 
 function Game(id, userId, username, startStationId, destinationStationId, score, status, startedAt) {
   this.id = id;
-  this.user = { id: userId, username: username };
+  this.user = new User(userId, username);
   this.startStationId = startStationId;
   this.destinationStationId = destinationStationId;
   this.score = score;

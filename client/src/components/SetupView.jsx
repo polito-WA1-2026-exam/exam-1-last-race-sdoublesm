@@ -11,7 +11,7 @@ function SetupView() {
 
 	const [starting, setStarting] = useState(false);
 
-	if (!user.id) return <Navigate to="/login" replace />;
+	if (!user?.id) return <Navigate to="/login" replace />;
 
 	const handleStartGame = async () => {
 		try {

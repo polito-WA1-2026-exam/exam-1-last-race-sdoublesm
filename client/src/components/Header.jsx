@@ -83,7 +83,7 @@ function Header() {
 				</div>
 
 				<div>
-					{user.id ? (
+					{user?.id ? (
 						<UserInfo user={user} />
 					) : (
 						<button

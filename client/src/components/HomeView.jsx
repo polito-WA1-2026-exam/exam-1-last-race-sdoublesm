@@ -83,7 +83,7 @@ function HomeView() {
         <Container className="mt-2">
             <div className="text-center bg-white p-5 my-4 rounded-4 shadow">
                 <h1 className="fw-bold mb-3">Welcome to LastRace!</h1>
-                {user.id ? (
+                {user?.id ? (
                     // utente loggato
                     <>
                         <p className="text-muted fs-5">

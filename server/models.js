@@ -1,10 +1,8 @@
 import dayjs from "dayjs";
 
-function User(id, username, bestScore, totalGames) {
+function User(id, username) {
   this.id  = id;
   this.username = username;
-  this.bestScore = bestScore;
-  this.totalGames = totalGames;
 }
 
 function Station(id, name, lines = [], isInterchange = false) {

@@ -9,19 +9,19 @@ function ExecutionView({ gameResult }) {
     const { gameId } = useParams();
     const user = useContext(UserContext);
     const navigate = useNavigate();
-    const timer = 2.5; // step visualization each 1.5 secs
+    const timer = 2.5; // step visualization each 2.5 secs
     const [currentStep, setCurrentStep] = useState(-1);
 
     const [phase, setPhase] = useState("showSteps");
 
     const [gameData, setGameData] = useState(null);
-    const [network, setNetwork] = useState({ stations: [], lines: [], segments: [] });
+    const [network, setNetwork] = useState({ stations: [], segments: [] });
     const [loadingData, setLoadingData] = useState(true);
 
     // calls GET /api/games/:gameId and GET /api/network per popolare gameData e network
     useEffect(() => {
         async function fetchData() {
-            if (!user.id || !gameId) return;
+            if (!user?.id || !gameId) return;
             try {
                 const gameInfo = await getGame(gameId);
                 if (gameInfo.error) {
@@ -38,7 +38,7 @@ function ExecutionView({ gameResult }) {
             }
         }
         fetchData();
-    }, [user.id, gameId, navigate]);
+    }, [user?.id, gameId, navigate]);
 
     let effectiveGameResult = gameResult;
     if (!gameResult && gameData && gameData.status !== "playing") {
@@ -46,7 +46,7 @@ function ExecutionView({ gameResult }) {
             status: gameData.status,
             finalScore: gameData.score,
             reason: gameData.status === "failed" ? "Invalid route." : "",
-            events: []
+            journey: []
         };
     }
 
@@ -55,27 +55,27 @@ function ExecutionView({ gameResult }) {
         if (!effectiveGameResult) return;
 
         // partita failed o senza eventi da mostrare (es. accesso diretto a /result) -> passo al risultato finale
-        if (effectiveGameResult.status === "failed" || effectiveGameResult.events?.length === 0) {
+        if (effectiveGameResult.status === "failed" || effectiveGameResult.journey?.length === 0) {
             setPhase("finalResult");
             return;
         }
 
         // showSteps -> proseguo passo dopo passo con timer finchè non ho mostrato tutti gli steps
-        if (phase === "showSteps" && effectiveGameResult.events && currentStep < effectiveGameResult.events.length) {
+        if (phase === "showSteps" && effectiveGameResult.journey && currentStep < effectiveGameResult.journey.length) {
             const timeoutId = setTimeout(() => {
                 setCurrentStep((prev) => prev + 1);
             }, timer * 1000);
             return () => clearTimeout(timeoutId);
         } else if (
             phase === "showSteps" &&
-            effectiveGameResult.events &&
-            currentStep >= effectiveGameResult.events.length
+            effectiveGameResult.journey &&
+            currentStep >= effectiveGameResult.journey.length
         ) {
             setPhase("finalResult");
         }
     }, [currentStep, phase, gameResult, gameData]);
 
-    if (!user.id) return <Navigate to="/login" replace />;
+    if (!user?.id) return <Navigate to="/login" replace />;
 
     if (loadingData) {
         return <LoadingView message="Loading results..." />;
@@ -85,10 +85,10 @@ function ExecutionView({ gameResult }) {
         return <Navigate to="/error" replace />;
     }
 
-    const startStationName = network.stations.find((s) => s.id === gameData?.startStationId)?.name || "..";
-    const destStationName = network.stations.find((s) => s.id === gameData?.destinationStationId)?.name || "..";
+    const startStationName = network?.stations?.find((s) => s.id === gameData?.startStationId)?.name || "..";
+    const destStationName = network?.stations?.find((s) => s.id === gameData?.destinationStationId)?.name || "..";
 
-    const displayedEvents = effectiveGameResult.events ? effectiveGameResult.events.slice(0, currentStep + 1) : [];
+    const displayedEvents = effectiveGameResult.journey ? effectiveGameResult.journey.slice(0, currentStep + 1) : [];
 
     let currentCoins = 20; // default initial coins
     if (displayedEvents.length > 0) {
@@ -164,7 +164,7 @@ function ExecutionView({ gameResult }) {
                         </Card>
                     )}
 
-                    {effectiveGameResult.status !== "failed" && effectiveGameResult.events?.length > 0 && gameData && (
+                    {effectiveGameResult.status !== "failed" && effectiveGameResult.journey?.length > 0 && gameData && (
                         <div className="bg-white p-4 border rounded-4 shadow-sm mb-3">
                             <div className="d-flex justify-content-between align-items-center mb-3">
                                 <h4 className="mb-0 text-uppercase">YOUR JOURNEY</h4>

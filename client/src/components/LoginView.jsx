@@ -10,7 +10,7 @@ function LoginForm(props) {
 	const [errormsg, setErrormsg] = useState("");
 
 	const doSubmit = async (ev) => {
-		ev.preventDefault();
+		ev.preventDefault(); // prevent browser default form submission refresh
 		setErrormsg("");
 
 		try {
@@ -71,12 +71,7 @@ function Logout(props) {
 	useEffect(() => {
 		doLogout()
 			.then(() => {
-				props.doLogin({
-					studentId: undefined,
-					username: undefined,
-					name: undefined,
-					planType: null,
-				});
+				props.doLogin(null);
 				navigate("/");
 			})
 			.catch((err) => console.error(err));

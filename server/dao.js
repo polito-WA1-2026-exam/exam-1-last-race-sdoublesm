@@ -10,25 +10,13 @@ const db = new sqlite.Database("database.sqlite", (err) => {
 // ** USER DAO **
 export const getUser = (username, password) => {
   return new Promise((resolve, reject) => {
-    const sql = `
-    SELECT users.*, 
-             MAX(games.score) as best_score,
-             COUNT(games.id) as total_games
-      FROM users
-      LEFT JOIN games ON users.id = games.user_id AND games.status = 'completed'
-      WHERE users.username = ?
-      GROUP BY users.id`;
+    const sql = `SELECT * FROM users WHERE username = ?`;
 
     db.get(sql, [username], (err, row) => {
       if (err) reject(err);
       else if (row === undefined) resolve(false);
       else {
-        const user = new User(
-          row.id,
-          row.username,
-          row.best_score || 0,
-          row.total_games || 0
-        );
+        const user = new User(row.id, row.username);
 
         crypto.scrypt(password, row.salt, 16, function (err, hashedPassword) {
           if (err) reject(err);
@@ -74,69 +62,59 @@ export const getLineStops = () => {
 };
 
 export const getNetwork = async () => {
-  try {
-    const [stationsRaw, linesRaw, lineStopsRaw] = await Promise.all([
-      getStations(),
-      getLines(),
-      getLineStops()
-    ]);
+  const [stationsRaw, linesRaw, lineStopsRaw] = await Promise.all([
+    getStations(),
+    getLines(),
+    getLineStops()
+  ]);
 
-    const stationsMap = {};
-    stationsRaw.forEach(s => stationsMap[s.id] = new Station(s.id, s.name, [], false));
-    const linesMap = {};
-    linesRaw.forEach(l => linesMap[l.id] = new Line(l.id, l.name, l.color, []));
+  const stationsMap = {};
+  // popolazione stationsMap per accesso rapido tramite ID
+  stationsRaw.forEach(s => stationsMap[s.id] = new Station(s.id, s.name, [], false));
+  const linesMap = {};
+  linesRaw.forEach(l => linesMap[l.id] = new Line(l.id, l.name, l.color, []));
 
-    const stopsByLine = {};
+  // popola l'array di stops di ciascuna linea
+  lineStopsRaw.forEach(stop => {
+    const line = linesMap[stop.line_id];
+    const station = stationsMap[stop.station_id];
 
-    lineStopsRaw.forEach(stop => {
-      const line = linesMap[stop.line_id];
-      const station = stationsMap[stop.station_id];
+    if (!station.lines.includes(line.name)) station.lines.push(line.name);
+    if (station.lines.length > 1) station.isInterchange = true;
 
-      if (!station.lines.includes(line.name)) station.lines.push(line.name);
-      if (station.lines.length > 1) station.isInterchange = true;
+    line.stops.push(station.id);
+  });
 
-      line.stops.push(station.id);
+  // crea i segmentni unendo stazioni adiacenti su stessa linea
+  const segmentsMap = new Map();
+  for (const line of Object.values(linesMap)) {
+    const stops = line.stops;
 
-      if (!stopsByLine[stop.line_id]) stopsByLine[stop.line_id] = [];
-      stopsByLine[stop.line_id].push({
-        stationId: station.id,
-        stationName: station.name,
-        stopNumber: stop.stop_number
-      });
-    });
+    for (let i = 0; i < stops.length - 1; i++) {
+      const current = stationsMap[stops[i]];
+      const next = stationsMap[stops[i + 1]];
 
-    const segmentsMap = new Map();
-    for (const lineId in stopsByLine) {
-      const stops = stopsByLine[lineId];
+      // ! per gestire segmenti duplicati, sfrutto un ID univoco
+      // ! ovvero viene sempre prima la stazione con ID minore
+      const minId = Math.min(current.id, next.id);
+      const maxId = Math.max(current.id, next.id);
+      const segId = `${minId}-${maxId}`;
 
-      for (let i = 0; i < stops.length - 1; i++) {
-        const current = stops[i];
-        const next = stops[i + 1];
-
-        const minId = Math.min(current.stationId, next.stationId);
-        const maxId = Math.max(current.stationId, next.stationId);
-        const segId = `${minId}-${maxId}`;
-
-        if (!segmentsMap.has(segId)) {
-          segmentsMap.set(segId, new Segment(
-            segId,
-            current.stationId, current.stationName,
-            next.stationId, next.stationName
-          ));
-        }
+      if (!segmentsMap.has(segId)) {
+        segmentsMap.set(segId, new Segment(
+          segId,
+          current.id, current.name,
+          next.id, next.name
+        ));
       }
     }
-
-    return {
-      stations: Object.values(stationsMap),
-      lines: Object.values(linesMap),
-      segments: Array.from(segmentsMap.values())
-    };
-  } catch (err) {
-    throw err;
   }
-};
 
+  return {
+    stations: Object.values(stationsMap),
+    segments: Array.from(segmentsMap.values())
+  };
+};
 
 // ** GAME DAO **
 export const getEvents = () => {
@@ -203,11 +181,13 @@ export const getRanking = () => {
     db.all(sql, [], (err, rows) => {
       if (err) reject(err);
       else {
-        resolve(rows.map(r => {
-          const user = new User(r.id, r.username, r.best_score, r.total_games);
-          user.position = r.position;
-          return user;
-        }));
+        resolve(rows.map(r => ({
+          id: r.id,
+          username: r.username,
+          bestScore: r.best_score,
+          totalGames: r.total_games,
+          position: r.position
+        })));
       }
     });
   });

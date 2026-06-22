@@ -18,11 +18,7 @@ import HomeView from "./components/HomeView.jsx";
 function App() {
 	const navigate = useNavigate();
 
-	const [user, setUser] = useState({
-		id: undefined,
-		username: undefined,
-		name: undefined,
-	});
+	const [user, setUser] = useState(null);
 	const [authLoading, setAuthLoading] = useState(true);
 	const [gameResult, setGameResult] = useState(null);
 

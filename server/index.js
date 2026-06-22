@@ -82,8 +82,12 @@ function getMinDistance(startId, destId, segments) {
 
     // elaborazione di un nodo: prendo i suoi vicini dall'array di segmenti e li metto in neighbors
     const neighbors = segments.reduce((acc, seg) => {
-      if (seg.stationAId === current.id) acc.push(seg.stationBId);
-      if (seg.stationBId === current.id) acc.push(seg.stationAId);
+      if (seg.stationAId === current.id) {
+        acc.push(seg.stationBId);
+      }
+      if (seg.stationBId === current.id) {
+        acc.push(seg.stationAId);
+      }
       return acc;
     }, []);
 
@@ -231,9 +235,9 @@ app.post("/api/games", isLoggedIn, async (req, res) => {
   }
 });
 
-// ? POST /api/games/:id/submit
-app.post("/api/games/:id/submit", isLoggedIn, [
-  check("id").isInt(),
+// ? POST /api/games/:gameId/submit
+app.post("/api/games/:gameId/submit", isLoggedIn, [
+  check("gameId").isInt(),
   check("segments").isArray()
 ], async (req, res) => {
   const errors = validationResult(req);
@@ -241,7 +245,7 @@ app.post("/api/games/:id/submit", isLoggedIn, [
     return res.status(422).json({ errors: errors.array() });
   }
 
-  const gameId = req.params.id;
+  const gameId = req.params.gameId;
   const userId = req.user.id;
   const { segments: submittedIds } = req.body;
 
@@ -255,14 +259,14 @@ app.post("/api/games/:id/submit", isLoggedIn, [
 
     if (elapsed > 95) {
       await updateGame(gameId, 0, "failed");
-      return res.json({ status: "failed", reason: "Time expired", events: [], finalScore: 0 });
+      return res.json({ status: "failed", reason: "Time expired", journey: [], finalScore: 0 });
     }
 
     // check for duplicate segments in the submitted route
     const uniqueSegments = new Set(submittedIds);
     if (uniqueSegments.size !== submittedIds.length) {
       await updateGame(gameId, 0, "failed");
-      return res.json({ status: "failed", reason: "Invalid route: segment used more than once", events: [], finalScore: 0 });
+      return res.json({ status: "failed", reason: "Invalid route: segment used more than once", journey: [], finalScore: 0 });
     }
 
     const network = await getNetwork();
@@ -273,7 +277,7 @@ app.post("/api/games/:id/submit", isLoggedIn, [
     const validRouteIds = [currentStation];
 
     let finalScore = 20;
-    const events = [];
+    const journey = [];
 
     for (const segId of submittedIds) {
       // per ogni segmento avrò uno 
@@ -281,7 +285,7 @@ app.post("/api/games/:id/submit", isLoggedIn, [
       const currentSegment = allSegments.find(s => s.id === segId); // recupero segmento
       if (!currentSegment) {
         await updateGame(gameId, 0, "failed");
-        return res.json({ status: "failed", reason: `Invalid route: segment ${segId} does not exist`, events: [], finalScore: 0 });
+        return res.json({ status: "failed", reason: `Invalid route: segment ${segId} does not exist`, journey: [], finalScore: 0 });
       }
 
       let startName, destName, nextStationId;
@@ -298,13 +302,13 @@ app.post("/api/games/:id/submit", isLoggedIn, [
       } else {
         // break -> percorso non valio
         await updateGame(gameId, 0, "failed");
-        return res.json({ status: "failed", reason: "Invalid route: segments not connected", events: [], finalScore: 0 });
+        return res.json({ status: "failed", reason: "Invalid route: segments not connected", journey: [], finalScore: 0 });
       }
 
       const randomEvent = allEvents[Math.floor(Math.random() * allEvents.length)];
       finalScore += randomEvent.effect;
 
-      events.push(new StepResult(
+      journey.push(new StepResult(
         startName,
         destName,
         randomEvent.description,
@@ -318,7 +322,7 @@ app.post("/api/games/:id/submit", isLoggedIn, [
 
     if (currentStation !== game.destinationStationId) {
       await updateGame(gameId, 0, "failed");
-      return res.json({ status: "failed", reason: "Invalid route: Destination not reached", events: [], finalScore: 0 });
+      return res.json({ status: "failed", reason: "Invalid route: Destination not reached", journey: [], finalScore: 0 });
     }
 
     if (finalScore < 0) {
@@ -326,7 +330,7 @@ app.post("/api/games/:id/submit", isLoggedIn, [
     }
 
     await updateGame(gameId, finalScore, "completed");
-    return res.json({ status: "completed", finalScore, journey: validRouteIds, events });
+    return res.json({ status: "completed", finalScore, journey });
 
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });
