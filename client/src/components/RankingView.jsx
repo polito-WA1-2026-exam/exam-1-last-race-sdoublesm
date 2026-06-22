@@ -2,7 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { Table, Spinner, Badge } from "react-bootstrap";
 import { getRanking } from "../api/api.js";
 import UserContext from "../contexts/UserContext.js";
-import { useNavigate } from "react-router";
+import { useNavigate, Navigate } from "react-router-dom";
 import { LoadingView } from "./LoadingView.jsx";
 
 function RankingView() {
